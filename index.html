@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Parametric machines</title>
-<meta name="description" content="Four machines generated procedurally in Blender from single specification files: two engines, and the vehicles built around them.">
+<meta name="description" content="Six machines generated procedurally in Blender from single specification files: engines, and the vehicles built around them.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2314181B'/%3E%3Ccircle cx='11' cy='16' r='5' fill='none' stroke='%23C0793C' stroke-width='2'/%3E%3Cpath d='M18 16 H27' stroke='%237C99A5' stroke-width='2'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -119,6 +119,11 @@
   }
   footer a{color:var(--ink-dim)}
 
+  /* the superseded pair: smaller, quieter, clearly behind the others */
+  .earlier .row{max-width:860px}
+  .earlier .card .shot{aspect-ratio:21/9; filter:saturate(.6)}
+  .earlier .card h3{font-size:18px}
+
   @media (max-width:900px){
     .row{grid-template-columns:1fr}
     .link{min-width:0; padding:18px 0; flex-direction:row; gap:14px}
@@ -133,19 +138,19 @@
 
 <header>
   <div class="wrap">
-    <h1>Four machines, each generated<br>from a single specification file.</h1>
+    <h1>Six machines, each generated<br>from a single specification file.</h1>
     <p>
-      Two engines, and the vehicles built around them. Every part is produced
+      Engines, and the vehicles built around them. Every part is produced
       procedurally in Blender from one Python file of real dimensions — no
       part is modelled by hand, and each project ships a script that measures
       the result and checks it against its own specification.
     </p>
     <div class="meta">
-      <span><b>2</b> engines</span>
-      <span><b>2</b> vehicles</span>
-      <span><b>2,200+</b> individual airfoils</span>
-      <span><b>6.42 M</b> vertices across the four</span>
-      <span><b>168</b> design checks, all passing</span>
+      <span><b>3</b> engines</span>
+      <span><b>3</b> vehicles</span>
+      <span><b>3,200+</b> individually lofted airfoils</span>
+      <span><b>13.5 M</b> vertices across the six</span>
+      <span><b>319</b> design checks, all passing</span>
       <span><b>MIT</b> licensed</span>
     </div>
   </div>
@@ -154,19 +159,133 @@
 <section class="pair" style="--tint:var(--air)">
   <div class="wrap">
     <h2>Aviation</h2>
-    <p class="sub">A military turbofan, and a model aircraft designed around it at 1:33.</p>
+    <p class="sub">An original adaptive-cycle fighter engine, and the twin-engine agile fighter designed around it.</p>
     <div class="row">
 
       <article class="card">
-        <img class="shot" src="img/f110.png" alt="Cutaway render of the F110 turbofan showing fan, compressor, combustor and turbines">
+        <img class="shot" src="img/aether.jpg" alt="Render of the Aether AX-1 adaptive-cycle turbofan with its rectangular vectoring nozzle">
         <div class="body">
           <div class="role">Engine</div>
+          <h3>Aether AX-1</h3>
+          <p class="tag">Three-stream adaptive-cycle turbofan with a 2D vectoring nozzle</p>
+          <dl>
+            <dt>Thrust</dt><dd>90.5 kN dry, 134.9 kN reheat</dd>
+            <dt>Overall pressure ratio</dt><dd>36.6</dd>
+            <dt>Thrust vectoring</dt><dd>±20° in pitch</dd>
+            <dt>Size</dt><dd>3.75 m long, 0.99 m across</dd>
+            <dt>Parts</dt><dd>105 named objects, 1,186 airfoils</dd>
+            <dt>Checks</dt><dd>120 passing</dd>
+          </dl>
+          <div class="links">
+            <a class="primary" href="https://krabduke.github.io/aether-ax1/viewer/">Open viewer</a>
+            <a href="https://github.com/krabduke/aether-ax1">Source</a>
+          </div>
+        </div>
+      </article>
+
+      <div class="link" aria-hidden="true">
+        <div class="rule"></div>
+        <div class="word">powers</div>
+        <div class="rule"></div>
+      </div>
+
+      <article class="card">
+        <img class="shot" src="img/nyx.jpg" alt="Render of the Nyx canard-delta fighter">
+        <div class="body">
+          <div class="role">Vehicle</div>
+          <h3>Nyx</h3>
+          <p class="tag">Twin-engine canard-delta fighter, built to out-turn everything</p>
+          <dl>
+            <dt>Instantaneous turn</dt><dd>35.0 °/s at sea level</dd>
+            <dt>Sustained turn</dt><dd>26.0 °/s at 5.4 g</dd>
+            <dt>Thrust to weight</dt><dd>1.60 at combat weight</dd>
+            <dt>Length × span</dt><dd>14.9 × 13.2 m</dd>
+            <dt>Parts</dt><dd>263 named objects</dd>
+            <dt>Checks</dt><dd>30 passing</dd>
+          </dl>
+          <div class="links">
+            <a class="primary" href="https://krabduke.github.io/nyx-jet/viewer/">Open viewer</a>
+            <a href="https://github.com/krabduke/nyx-jet">Source</a>
+          </div>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<section class="pair" style="--tint:var(--ground)">
+  <div class="wrap">
+    <h2>Automotive</h2>
+    <p class="sub">A hybrid V8, and a racing car built around it to beat Formula 1 on an F1 circuit.</p>
+    <div class="row">
+
+      <article class="card">
+        <img class="shot" src="img/v8.jpg" alt="Render of the RX-8V V8 twin-turbo hybrid power unit">
+        <div class="body">
+          <div class="role">Engine</div>
+          <h3>RX-8V Vertex</h3>
+          <p class="tag">2.0 L flat-plane V8, hot-vee twin turbo, 280 kW hybrid</p>
+          <dl>
+            <dt>Displacement</dt><dd>1,999 cc</dd>
+            <dt>Combined output</dt><dd>1,254 hp</dd>
+            <dt>Redline</dt><dd>16,000 rpm</dd>
+            <dt>Mass</dt><dd>146 kg</dd>
+            <dt>Parts</dt><dd>473 named objects</dd>
+            <dt>Checks</dt><dd>40 passing</dd>
+          </dl>
+          <div class="links">
+            <a class="primary" href="https://krabduke.github.io/car-engine-v8-hybrid/viewer/">Open viewer</a>
+            <a href="https://github.com/krabduke/car-engine-v8-hybrid">Source</a>
+          </div>
+        </div>
+      </article>
+
+      <div class="link" aria-hidden="true">
+        <div class="rule"></div>
+        <div class="word">powers</div>
+        <div class="rule"></div>
+      </div>
+
+      <article class="card">
+        <img class="shot" src="img/vx1.jpg" alt="Render of the VX-1 Vortex ground-effect fan car">
+        <div class="body">
+          <div class="role">Vehicle</div>
+          <h3>VX-1 Vortex</h3>
+          <p class="tag">Ground-effect fan car, built to beat F1 on an F1 circuit</p>
+          <dl>
+            <dt>Mass</dt><dd>700 kg — F1 minimum is 798</dd>
+            <dt>Fan downforce</dt><dd>650 kg, near speed-independent</dd>
+            <dt>Grip at 80 km/h</dt><dd>3.34 g vs F1's 2.03</dd>
+            <dt>Lap</dt><dd>10.7 s faster than F1</dd>
+            <dt>Parts</dt><dd>265 named assemblies</dd>
+            <dt>Checks</dt><dd>45 passing</dd>
+          </dl>
+          <div class="links">
+            <a class="primary" href="https://krabduke.github.io/aero-hypercar/viewer/">Open viewer</a>
+            <a href="https://github.com/krabduke/aero-hypercar">Source</a>
+          </div>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<section class="pair earlier" style="--tint:var(--ink-dim)">
+  <div class="wrap">
+    <h2>First version</h2>
+    <p class="sub">The aviation pair before Aether and Nyx replaced it: a model of a production turbofan, and a model aircraft built around it at 1:33. Kept as it was, at tag v1.</p>
+    <div class="row">
+
+      <article class="card">
+        <img class="shot" src="img/f110.jpg" alt="Cutaway render of the F110 turbofan showing fan, compressor, combustor and turbines">
+        <div class="body">
+          <div class="role">Engine, v1</div>
           <h3>F110-GE-129</h3>
           <p class="tag">Augmented low-bypass turbofan — the engine in the F-16C/D</p>
           <dl>
-            <dt>Length</dt><dd>4,630 mm</dd>
             <dt>Thrust</dt><dd>29,000 lbf with afterburner</dd>
-            <dt>Parts</dt><dd>117 named objects</dd>
             <dt>Airfoils</dt><dd>2,044 individually lofted</dd>
             <dt>Checks</dt><dd>50 passing</dd>
           </dl>
@@ -184,80 +303,19 @@
       </div>
 
       <article class="card">
-        <img class="shot" src="img/rcjet.png" alt="Render of the RC jet, a cropped-delta model aircraft">
+        <img class="shot" src="img/rcjet.jpg" alt="Render of the RC jet, a cropped-delta model aircraft">
         <div class="body">
-          <div class="role">Vehicle</div>
+          <div class="role">Vehicle, v1</div>
           <h3>RC Jet</h3>
           <p class="tag">Cropped-delta model aircraft, inside a 500 × 300 mm envelope</p>
           <dl>
-            <dt>Size</dt><dd>492 × 300 mm</dd>
             <dt>All-up weight</dt><dd>558 g</dd>
-            <dt>Centre of gravity</dt><dd>25.2 % MAC, 112 g/dm&sup2; loading</dd>
             <dt>Engine</dt><dd>F110 at 1:33 — 140 mm</dd>
-            <dt>Parts</dt><dd>339 named objects</dd>
             <dt>Checks</dt><dd>34 passing</dd>
           </dl>
           <div class="links">
             <a class="primary" href="https://krabduke.github.io/rc-jet/viewer/">Open viewer</a>
             <a href="https://github.com/krabduke/rc-jet">Source</a>
-          </div>
-        </div>
-      </article>
-
-    </div>
-  </div>
-</section>
-
-<section class="pair" style="--tint:var(--ground)">
-  <div class="wrap">
-    <h2>Automotive</h2>
-    <p class="sub">A hybrid V8, and a racing car built around it to beat Formula 1 on an F1 circuit.</p>
-    <div class="row">
-
-      <article class="card">
-        <img class="shot" src="img/v8.png" alt="Render of the RX-8V V8 twin-turbo hybrid power unit">
-        <div class="body">
-          <div class="role">Engine</div>
-          <h3>RX-8V Vertex</h3>
-          <p class="tag">2.0 L flat-plane V8, hot-vee twin turbo, 280 kW hybrid</p>
-          <dl>
-            <dt>Displacement</dt><dd>1,999 cc</dd>
-            <dt>Combined output</dt><dd>1,254 hp</dd>
-            <dt>Redline</dt><dd>16,000 rpm</dd>
-            <dt>Mass</dt><dd>146 kg</dd>
-            <dt>Parts</dt><dd>435 named objects</dd>
-            <dt>Checks</dt><dd>39 passing</dd>
-          </dl>
-          <div class="links">
-            <a class="primary" href="https://krabduke.github.io/car-engine-v8-hybrid/viewer/">Open viewer</a>
-            <a href="https://github.com/krabduke/car-engine-v8-hybrid">Source</a>
-          </div>
-        </div>
-      </article>
-
-      <div class="link" aria-hidden="true">
-        <div class="rule"></div>
-        <div class="word">powers</div>
-        <div class="rule"></div>
-      </div>
-
-      <article class="card">
-        <img class="shot" src="img/vx1.png" alt="Render of the VX-1 Vortex ground-effect fan car">
-        <div class="body">
-          <div class="role">Vehicle</div>
-          <h3>VX-1 Vortex</h3>
-          <p class="tag">Ground-effect fan car, built to beat F1 on an F1 circuit</p>
-          <dl>
-            <dt>Mass</dt><dd>700 kg — F1 minimum is 798</dd>
-            <dt>Fan downforce</dt><dd>650 kg, near speed-independent</dd>
-            <dt>Grip at 80 km/h</dt><dd>3.59 g vs F1's 2.05</dd>
-            <dt>R60 m corner</dt><dd>208 km/h vs F1's 143</dd>
-            <dt>Parts</dt><dd>246 named assemblies</dd>
-            <dt>Checks</dt><dd>45 passing</dd>
-          </dl>
-          <div class="links">
-            <a class="primary" href="https://krabduke.github.io/aero-hypercar/viewer/">Open viewer</a>
-            <a href="https://github.com/krabduke/aero-hypercar">Source</a>
           </div>
         </div>
       </article>
