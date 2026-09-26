@@ -4,401 +4,473 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Parametric machines</title>
-<meta name="description" content="Six machines generated procedurally in Blender from single specification files: engines, and the vehicles built around them.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2314181B'/%3E%3Ccircle cx='11' cy='16' r='5' fill='none' stroke='%23C0793C' stroke-width='2'/%3E%3Cpath d='M18 16 H27' stroke='%237C99A5' stroke-width='2'/%3E%3C/svg%3E">
+<meta name="description" content="Two engines and the vehicles built around them, each generated in Blender from a Python file of real dimensions, checked by its own audits, drawn to scale and put through CFD.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23E7EBE7'/%3E%3Crect x='3' y='3' width='26' height='26' fill='none' stroke='%231B2124' stroke-width='1.5'/%3E%3Cpath d='M7 22 H25 M7 20 V24 M25 20 V24' stroke='%231B2124' stroke-width='1.5'/%3E%3Cpath d='M9 16 L16 8 L23 16' fill='none' stroke='%23C23A21' stroke-width='2'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600;700&family=Barlow:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#14181B;
-    --bg-lift:#1B2125;
-    --line:#2B3338;
-    --ink:#D6DAD5;
-    --ink-dim:#8B949A;
-    --ink-faint:#6A7278;
-    --air:#7C99A5;      /* the aviation pair */
-    --ground:#C0793C;   /* the automotive pair */
+    --film:#E7EBE7;       /* drafting film: the page */
+    --film-2:#DCE2DE;     /* a sheet laid on it */
+    --ink:#1B2124;        /* graphite */
+    --ink-2:#56616A;      /* second-order text */
+    --ink-3:#7F888C;      /* construction lines */
+    --rule:#C3CAC6;
+    --red:#C23A21;        /* the checker's pen: only where a number was corrected */
+    --cond:"Barlow Semi Condensed", "Barlow", system-ui, sans-serif;
   }
   *{box-sizing:border-box}
   html{scroll-behavior:smooth}
   body{
-    margin:0; background:var(--bg); color:var(--ink);
-    font-family:Archivo,system-ui,-apple-system,"Segoe UI",sans-serif;
-    font-size:15px; line-height:1.55; -webkit-font-smoothing:antialiased;
+    margin:0; background:var(--film); color:var(--ink);
+    font-family:Barlow, system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size:16px; line-height:1.55; -webkit-font-smoothing:antialiased;
+    font-variant-numeric:tabular-nums;
   }
   a{color:inherit}
-  .wrap{max-width:1160px; margin:0 auto; padding:0 24px}
+  :focus-visible{outline:2px solid var(--red); outline-offset:3px}
+  .wrap{max-width:1240px; margin:0 auto; padding:0 28px}
 
-  /* ---- masthead ------------------------------------------------------- */
-  header{padding:72px 0 44px; border-bottom:1px solid var(--line)}
-  header h1{
-    margin:0; font-size:clamp(30px, 5vw, 46px); font-weight:700;
-    letter-spacing:-.028em; line-height:1.08;
-  }
-  header p{
-    margin:16px 0 0; max-width:58ch; color:var(--ink-dim);
-    font-size:16.5px;
-  }
-  header .meta{
-    margin-top:26px; display:flex; flex-wrap:wrap; gap:26px;
-    font-size:13px; color:var(--ink-faint); font-variant-numeric:tabular-nums;
-  }
-  header .meta b{color:var(--ink); font-weight:600}
+  /* ---- top line -------------------------------------------------------- */
+  .top{display:flex; justify-content:space-between; align-items:baseline; gap:20px; padding-top:22px}
+  .mark{font-family:var(--cond); font-weight:600; font-size:18px; text-decoration:none}
+  .top nav{display:flex; gap:22px; font-size:14.5px}
+  .top nav a{text-decoration:none; color:var(--ink-2)}
+  .top nav a:hover{color:var(--ink); text-decoration:underline; text-decoration-color:var(--red); text-underline-offset:4px}
 
-  /* ---- the lineage: an engine, and the machine built around it -------- */
-  .pair{padding:56px 0; border-bottom:1px solid var(--line)}
-  .pair > h2{
-    margin:0 0 4px; font-size:13px; font-weight:600; color:var(--tint);
-    letter-spacing:.01em;
-  }
-  .pair > .sub{margin:0 0 28px; color:var(--ink-faint); font-size:13px}
+  /* ---- the drawing board ------------------------------------------------ */
+  .board{display:grid; grid-template-columns:minmax(300px, 5fr) 7fr; gap:48px;
+         padding-top:44px; padding-bottom:68px; align-items:start}
+  .intro h1{font-family:var(--cond); font-weight:600; letter-spacing:-.014em;
+            font-size:clamp(40px, 5.3vw, 68px); line-height:.97; margin:0}
+  .intro p{margin:20px 0 0; color:var(--ink-2); font-size:17px; max-width:44ch}
+  .picker{margin:34px 0 0; padding:0; list-style:none; border-top:1px solid var(--rule)}
+  .picker button{width:100%; display:grid; grid-template-columns:1fr auto; align-items:baseline; gap:12px;
+    background:none; border:0; border-bottom:1px solid var(--rule); padding:12px 2px 11px;
+    font:inherit; color:var(--ink-3); text-align:left; cursor:pointer}
+  .picker .n{font-family:var(--cond); font-size:31px; font-weight:600; line-height:1.05; transition:color .2s}
+  .picker .k{font-size:14px}
+  .picker button:hover .n{color:var(--ink-2)}
+  .picker button[aria-pressed="true"], .picker button[aria-pressed="true"] .n{color:var(--ink)}
+  .picker button[aria-pressed="true"] .n::before{content:""; display:inline-block; width:16px; height:2px;
+    background:var(--red); vertical-align:middle; margin:0 11px 7px 0}
 
-  .row{display:grid; grid-template-columns:1fr auto 1fr; gap:0; align-items:stretch}
+  .board{align-items:stretch}
+  .sheet{position:relative; background:var(--film-2); border:1.5px solid var(--ink);
+         display:grid; grid-template-rows:1fr auto; min-height:560px}
+  /* the drawing area: an inner frame with grid references in its margin */
+  .area{position:relative; min-height:0; display:grid}
+  .area::before{content:""; position:absolute; inset:16px 16px 0 16px; border:1px solid var(--ink-3);
+                border-bottom:0; pointer-events:none}
+  .refs{position:absolute; inset:0; pointer-events:none; font-family:var(--cond); font-size:10.5px; color:var(--ink-3)}
+  .refs span{position:absolute; transform:translate(-50%, -50%)}
+  .draw{position:relative; min-height:0; padding:60px 76px 56px 44px; display:grid; place-items:center}
+  .fig{position:relative; width:100%}
+  .fig img{display:block; width:100%; height:auto; mix-blend-mode:multiply}
+  .fig img.plotting{animation:plot 1s cubic-bezier(.55,0,.2,1) both}
+  @keyframes plot{from{clip-path:inset(0 100% 0 0)} to{clip-path:inset(0 0 0 0)}}
+  .fig svg{position:absolute; left:-34px; top:-34px; overflow:visible; pointer-events:none}
+  .fig svg line{stroke:var(--ink); stroke-width:1; fill:none}
+  .fig svg .arrow{fill:var(--ink)}
+  .fig svg text{font-family:var(--cond); font-size:13.5px; fill:var(--ink); font-weight:500}
+  .fig svg .dim{stroke-dasharray:var(--len); stroke-dashoffset:0}
+  .fig svg.redraw .dim{animation:dim .7s .55s ease-out both}
+  @keyframes dim{from{stroke-dashoffset:var(--len)}}
+  .fig svg.redraw text, .fig svg.redraw .arrow{animation:fade .4s 1.05s both}
+  @keyframes fade{from{opacity:0}}
 
-  .card{
-    background:var(--bg-lift); border:1px solid var(--line);
-    display:flex; flex-direction:column; overflow:hidden;
-    transition:border-color .16s ease, transform .16s ease;
-  }
-  .card:hover{border-color:var(--tint); transform:translateY(-2px)}
-  .card .shot{
-    display:block; width:100%; aspect-ratio:16/9; object-fit:cover;
-    background:#0E1214; border-bottom:1px solid var(--line);
-  }
-  .card .body{padding:20px 22px 22px; display:flex; flex-direction:column; flex:1}
-  .card .role{
-    font-size:11.5px; font-weight:600; color:var(--tint); margin-bottom:7px;
-  }
-  .card h3{margin:0; font-size:21px; font-weight:600; letter-spacing:-.018em}
-  .card .tag{margin:3px 0 0; color:var(--ink-dim); font-size:13.5px}
-  .card dl{
-    margin:18px 0 0; display:grid; grid-template-columns:auto 1fr;
-    gap:5px 18px; font-size:13px; font-variant-numeric:tabular-nums;
-  }
-  .card dt{color:var(--ink-faint)}
-  .card dd{margin:0; text-align:right; color:var(--ink)}
-  .card .links{
-    margin-top:auto; padding-top:20px; display:flex; gap:10px; flex-wrap:wrap;
-  }
-  .card .links a{
-    text-decoration:none; font-size:13px; font-weight:500; padding:7px 14px;
-    border:1px solid var(--line); color:var(--ink);
-    transition:background .14s ease, border-color .14s ease;
-  }
-  .card .links a:hover{background:#232B30; border-color:var(--tint)}
-  .card .links a.primary{background:var(--tint); border-color:var(--tint); color:#101416}
-  .card .links a.primary:hover{filter:brightness(1.1)}
+  .tblock{display:grid; grid-template-columns:2.2fr .8fr 1.1fr 1.2fr; border-top:1.5px solid var(--ink); font-size:13px}
+  .tblock > div{padding:7px 12px 8px; border-left:1px solid var(--ink)}
+  .tblock > div:first-child{border-left:0}
+  .tblock .l{color:var(--ink-2); font-size:11.5px}
+  .tblock .v{font-family:var(--cond); font-weight:600; font-size:17px; line-height:1.2}
+  .tblock a{text-decoration-color:var(--rule); text-underline-offset:3px}
+  .tblock a:hover{text-decoration-color:var(--red)}
 
-  /* the connector: this engine goes in that machine */
-  .link{
-    display:flex; flex-direction:column; align-items:center; justify-content:center;
-    padding:0 20px; min-width:132px;
-  }
-  .link .rule{flex:0 0 auto; width:100%; height:1px; background:var(--tint); opacity:.5}
-  .link .word{
-    font-size:11.5px; color:var(--tint); padding:8px 0; white-space:nowrap;
-    font-weight:600;
-  }
+  /* ---- the pairs ------------------------------------------------------- */
+  .pair{padding:64px 0; border-top:1px solid var(--rule)}
+  .pair header, .check .wrap, .earlier header, .method .wrap{display:grid; grid-template-columns:5fr 7fr; gap:48px; align-items:baseline}
+  .pair h2, .check h2{font-family:var(--cond); font-weight:600; font-size:38px; letter-spacing:-.01em; margin:0; line-height:1.05}
+  .pair header p{margin:0; color:var(--ink-2); max-width:62ch; font-size:16.5px}
+  .spread{margin-top:36px; display:grid; grid-template-columns:1fr 96px 1fr; align-items:start}
+  .powers{display:flex; flex-direction:column; align-items:center; padding-top:92px; color:var(--ink-2)}
+  .powers svg{width:80px; height:20px; overflow:visible}
+  .powers span{font-size:13px; margin-top:2px}
 
-  /* ---- the aero study: one band, linking out ---------------------------- */
-  .study{padding:48px 0; border-bottom:1px solid var(--line)}
-  .study a.band{
-    display:grid; grid-template-columns:1fr auto; gap:24px; align-items:center;
-    text-decoration:none; background:var(--bg-lift); border:1px solid var(--line);
-    padding:26px 28px; transition:border-color .16s ease;
-  }
-  .study a.band:hover{border-color:var(--air)}
-  .study h2{margin:0; font-size:22px; font-weight:650; letter-spacing:-.018em}
-  .study p{margin:8px 0 0; color:var(--ink-dim); font-size:14.5px; max-width:70ch}
-  .study .go{font-size:13px; font-weight:500; padding:8px 14px; background:var(--air); color:#101416; white-space:nowrap}
-  @media (max-width:900px){ .study a.band{grid-template-columns:1fr} }
+  .view{position:relative; aspect-ratio:16 / 10; background:var(--film-2); border:1.5px solid var(--ink);
+        overflow:hidden; cursor:col-resize}
+  .view img{position:absolute; inset:0; width:100%; height:100%}
+  .view .render{object-fit:cover}
+  /* the drawing on its own sheet over the render, cut back from the left */
+  .view .overlay{position:absolute; inset:0; background:var(--film-2); isolation:isolate;
+                 clip-path:inset(0 0 0 var(--x, 0%)); transition:clip-path .5s cubic-bezier(.3,0,.2,1)}
+  .view.live .overlay{transition:none}
+  .view .line{object-fit:contain; padding:22px; mix-blend-mode:multiply}
+  .view .edge{position:absolute; top:0; bottom:0; left:var(--x, 0%); width:2px; margin-left:-1px;
+              background:var(--red); opacity:0; transition:opacity .2s, left .5s cubic-bezier(.3,0,.2,1)}
+  .view.live .edge{transition:none; opacity:1}
+  .view .toggle{position:absolute; right:10px; bottom:10px; font:inherit; font-size:12.5px;
+                background:var(--film); color:var(--ink); border:1px solid var(--ink); padding:3px 9px; cursor:pointer}
+  .view .toggle:hover{border-color:var(--red)}
+  .plate h3{font-family:var(--cond); font-weight:600; font-size:32px; letter-spacing:-.01em; margin:18px 0 0; line-height:1.05}
+  .plate .kind{margin:4px 0 0; color:var(--ink-2); font-size:15px}
+  .plate .does{margin:12px 0 0; font-size:15.5px; max-width:52ch}
+  .plate dl{margin:16px 0 0; display:grid; grid-template-columns:auto 1fr; border-top:1px solid var(--rule); font-size:14.5px}
+  .plate dt, .plate dd{padding:6px 0; border-bottom:1px solid var(--rule)}
+  .plate dt{color:var(--ink-2); padding-right:18px}
+  .plate dd{margin:0; text-align:right}
+  .plate dd s{color:var(--ink-3); text-decoration-color:var(--red); text-decoration-thickness:1.5px; margin-right:7px}
+  .actions{display:flex; flex-wrap:wrap; gap:10px; margin-top:18px}
+  .actions a{font-size:14.5px; font-weight:500; text-decoration:none; padding:8px 14px; border:1.5px solid var(--ink)}
+  .actions a.go{background:var(--ink); color:var(--film)}
+  .actions a:hover{border-color:var(--red)}
+  .actions a.go:hover{background:#2C3438}
 
-  /* ---- method --------------------------------------------------------- */
-  .method{padding:56px 0 40px}
-  .method h2{margin:0 0 20px; font-size:20px; font-weight:600; letter-spacing:-.018em}
-  .method .cols{display:grid; grid-template-columns:repeat(3, 1fr); gap:34px}
-  .method h4{margin:0 0 7px; font-size:14px; font-weight:600}
-  .method p{margin:0; color:var(--ink-dim); font-size:14px}
-  .method code{
-    background:#222A2E; padding:1px 5px; font-size:12.5px;
-    font-family:ui-monospace, SFMono-Regular, Menlo, monospace;
-  }
+  /* ---- the check ------------------------------------------------------- */
+  .check{padding:64px 0; border-top:1px solid var(--rule)}
+  .check .wrap{align-items:start}
+  .check p{color:var(--ink-2); margin:14px 0 0; max-width:46ch; font-size:16.5px}
+  .check .actions{margin-top:22px}
+  .redlines{margin:0; padding:0; list-style:none; border-top:1px solid var(--rule)}
+  .redlines li{display:grid; grid-template-columns:1fr auto; gap:16px; align-items:baseline;
+               padding:13px 0; border-bottom:1px solid var(--rule)}
+  .redlines .what{font-size:15.5px}
+  .redlines .what small{display:block; color:var(--ink-2); font-size:13.5px}
+  .redlines .fig{font-family:var(--cond); font-size:28px; font-weight:600; white-space:nowrap; position:static}
+  .redlines .fig s{color:var(--ink-3); text-decoration-color:var(--red); text-decoration-thickness:2px;
+                   font-weight:500; margin-right:10px}
+  .redlines .fig b{color:var(--red); font-weight:600}
+  .redlines .fig small{font-size:14px; color:var(--ink-2); font-weight:500; margin-left:4px}
+  .redlines li.holds .fig b{color:var(--ink)}
 
-  footer{
-    padding:30px 0 56px; border-top:1px solid var(--line);
-    color:var(--ink-faint); font-size:13px;
-    display:flex; justify-content:space-between; gap:20px; flex-wrap:wrap;
-  }
-  footer a{color:var(--ink-dim)}
+  /* ---- first version --------------------------------------------------- */
+  .earlier{padding:56px 0 60px; border-top:1px solid var(--rule)}
+  .earlier h2, .method h2{font-family:var(--cond); font-weight:600; font-size:30px; margin:0}
+  .earlier header p{margin:0; color:var(--ink-2); max-width:62ch}
+  .earlier .row{margin-top:26px; display:grid; grid-template-columns:1fr 1fr; gap:32px}
+  .old{display:grid; grid-template-columns:210px 1fr; gap:18px; align-items:start}
+  .old .shot{position:relative; aspect-ratio:16 / 9; border:1.5px solid var(--ink-3); overflow:hidden}
+  .old .shot img{width:100%; height:100%; object-fit:cover; filter:grayscale(1) contrast(.9); opacity:.75}
+  .old .stamp{position:absolute; right:8px; top:8px; transform:rotate(-5deg); border:1.5px solid var(--red);
+              color:var(--red); font-family:var(--cond); font-weight:600; font-size:13px; padding:0 7px;
+              background:rgba(231,235,231,.88)}
+  .old h3{font-family:var(--cond); font-weight:600; font-size:23px; margin:0}
+  .old p{margin:2px 0 0; color:var(--ink-2); font-size:14.5px}
+  .old .actions{margin-top:10px}
+  .old .actions a{font-size:13.5px; padding:5px 11px; border-width:1px}
 
-  /* the superseded pair: smaller, quieter, clearly behind the others */
-  .earlier .row{max-width:860px}
-  .earlier .card .shot{aspect-ratio:21/9; filter:saturate(.6)}
-  .earlier .card h3{font-size:18px}
+  /* ---- method ----------------------------------------------------------- */
+  .method{padding:60px 0 56px; border-top:1px solid var(--rule)}
+  .method .wrap{align-items:start}
+  .method .cols{display:grid; grid-template-columns:1fr 1fr; gap:26px 34px}
+  .method h4{margin:0 0 6px; font-size:16px; font-weight:600}
+  .method p{margin:0; color:var(--ink-2); font-size:15px}
+  code{font-family:ui-monospace, SFMono-Regular, Menlo, monospace; font-size:13px; background:var(--film-2); padding:1px 5px}
 
-  @media (max-width:900px){
-    .row{grid-template-columns:1fr}
-    .link{min-width:0; padding:18px 0; flex-direction:row; gap:14px}
-    .link .rule{width:44px; height:1px}
-    .method .cols{grid-template-columns:1fr; gap:24px}
-    header{padding:48px 0 34px}
+  /* ---- the title block the page ends on --------------------------------- */
+  footer{padding-bottom:48px}
+  footer .tblock{border:1.5px solid var(--ink); grid-template-columns:2fr 1.2fr 1.4fr .8fr .8fr}
+
+  @media (max-width:960px){
+    .board, .pair header, .check .wrap, .earlier header, .method .wrap{grid-template-columns:1fr; gap:22px}
+    .spread{grid-template-columns:1fr}
+    .powers{flex-direction:row; justify-content:center; gap:10px; padding:26px 0}
+    .powers svg{transform:rotate(90deg); width:40px}
+    .earlier .row, .method .cols{grid-template-columns:1fr}
+    .sheet{min-height:460px}
+    .draw{padding:50px 62px 48px 36px}
+    .tblock, footer .tblock{grid-template-columns:1fr 1fr}
+    .tblock > div:nth-child(odd){border-left:0}
+    .tblock > div:nth-child(n+3){border-top:1px solid var(--ink)}
   }
-  @media (prefers-reduced-motion:reduce){*{transition-duration:.01ms !important}}
+  @media (max-width:560px){
+    .wrap{padding-left:16px; padding-right:16px}
+    .top nav a:last-child{display:none}
+    .picker .n{font-size:26px}
+    .old{grid-template-columns:1fr}
+    .sheet{min-height:0; grid-template-rows:auto auto}
+    .draw{height:300px; padding:40px 48px 40px 22px}
+    .redlines .fig{font-size:22px}
+  }
+  @media (prefers-reduced-motion:reduce){*{animation:none !important; transition:none !important}}
 </style>
 </head>
 <body>
 
-<header>
-  <div class="wrap">
-    <h1>Six machines, each generated<br>from a single specification file.</h1>
-    <p>
-      Engines, and the vehicles built around them. Every part is produced
-      procedurally in Blender from one Python file of real dimensions — no
-      part is modelled by hand, and each project ships a script that measures
-      the result and checks it against its own specification. Each current
-      model opens in a browser viewer where you can run it, cut it open, and
-      take it apart and watch it go back together in build order, and comes
-      with a drawing package: an A1 general arrangement and a sheet for every
-      assembly, to scale, dimensioned, with parts lists.
-    </p>
-    <div class="meta">
-      <span><b>3</b> engines</span>
-      <span><b>3</b> vehicles</span>
-      <span><b>3,200+</b> individually lofted airfoils</span>
-      <span><b>13.5 M</b> vertices across the six</span>
-      <span><b>319</b> design checks, all passing</span>
-      <span><b>MIT</b> licensed</span>
-    </div>
+<div class="wrap top">
+  <a class="mark" href="./">Parametric machines</a>
+  <nav aria-label="Elsewhere">
+    <a href="aero/">The air, checked</a>
+    <a href="https://github.com/krabduke">Source on GitHub</a>
+  </nav>
+</div>
+
+<section class="wrap board" aria-label="The machines, as drawn">
+  <div class="intro">
+    <h1>Machines drawn from the numbers that define them.</h1>
+    <p>Two engines and the vehicles built around them. Every part is generated in Blender from one Python
+    file of real dimensions, checked by its own audits, drawn to scale, and flown through a
+    computational wind tunnel.</p>
+    <ul class="picker" id="picker" aria-label="Choose a machine to draw"></ul>
   </div>
-</header>
-
-<section class="pair" style="--tint:var(--air)">
-  <div class="wrap">
-    <h2>Aviation</h2>
-    <p class="sub">An original adaptive-cycle fighter engine, and the twin-engine agile fighter designed around it.</p>
-    <div class="row">
-
-      <article class="card">
-        <img class="shot" src="img/aether.jpg" alt="Render of the Aether AX-1 turbofan with its three-bearing swivel nozzle folded straight down">
-        <div class="body">
-          <div class="role">Engine</div>
-          <h3>Aether AX-1</h3>
-          <p class="tag">Three-stream adaptive-cycle turbofan with a three-bearing swivel nozzle</p>
-          <dl>
-            <dt>Thrust</dt><dd>90.5 kN dry, 134.9 kN reheat</dd>
-            <dt>Overall pressure ratio</dt><dd>36.6</dd>
-            <dt>Thrust vectoring</dt><dd>0–95° down, ±12° of yaw</dd>
-            <dt>Size</dt><dd>4.74 m long, 1.02 m across</dd>
-            <dt>Parts</dt><dd>134 named objects, 1,186 airfoils</dd>
-            <dt>Checks</dt><dd>120 passing</dd>
-          </dl>
-          <div class="links">
-            <a class="primary" href="https://krabduke.github.io/aether-ax1/viewer/">Open viewer</a>
-            <a href="https://krabduke.github.io/aether-ax1/drawings.pdf">Drawings</a>
-            <a href="https://github.com/krabduke/aether-ax1">Source</a>
-          </div>
-        </div>
-      </article>
-
-      <div class="link" aria-hidden="true">
-        <div class="rule"></div>
-        <div class="word">powers</div>
-        <div class="rule"></div>
+  <div class="sheet">
+    <div class="area">
+      <div class="refs" aria-hidden="true" id="refs"></div>
+      <div class="draw" id="draw">
+        <div class="fig" id="fig"><img id="gaimg" alt=""><svg id="dims" aria-hidden="true"></svg></div>
       </div>
-
-      <article class="card">
-        <img class="shot" src="img/nyx.jpg" alt="Render of the Nyx canard-delta fighter in flight, gear up">
-        <div class="body">
-          <div class="role">Vehicle</div>
-          <h3>Nyx</h3>
-          <p class="tag">Twin-engine canard-delta fighter with swivel nozzles, built to out-turn everything</p>
-          <dl>
-            <dt>Instantaneous turn</dt><dd>34.7 °/s at sea level</dd>
-            <dt>Sustained turn</dt><dd>25.5 °/s at 5.3 g</dd>
-            <dt>Thrust to weight</dt><dd>1.58 at combat weight</dd>
-            <dt>Length × span</dt><dd>14.9 × 13.2 m</dd>
-            <dt>Parts</dt><dd>434 named objects</dd>
-            <dt>Checks</dt><dd>30 passing</dd>
-          </dl>
-          <div class="links">
-            <a class="primary" href="https://krabduke.github.io/nyx-jet/viewer/">Open viewer</a>
-            <a href="https://krabduke.github.io/nyx-jet/drawings.pdf">Drawings</a>
-            <a href="https://github.com/krabduke/nyx-jet">Source</a>
-          </div>
-        </div>
-      </article>
-
     </div>
+    <div class="tblock" id="tblock"></div>
   </div>
 </section>
 
-<section class="pair" style="--tint:var(--ground)">
+<section class="pair" aria-labelledby="h-air">
   <div class="wrap">
-    <h2>Automotive</h2>
-    <p class="sub">A hybrid V8, and a racing car built around it to beat Formula 1 on an F1 circuit.</p>
-    <div class="row">
-
-      <article class="card">
-        <img class="shot" src="img/v8.jpg" alt="Render of the RX-8V V8 twin-turbo hybrid power unit">
-        <div class="body">
-          <div class="role">Engine</div>
-          <h3>RX-8V Vertex</h3>
-          <p class="tag">2.0 L flat-plane V8, hot-vee twin turbo, 280 kW hybrid</p>
-          <dl>
-            <dt>Displacement</dt><dd>1,999 cc</dd>
-            <dt>Combined output</dt><dd>1,254 hp</dd>
-            <dt>Redline</dt><dd>16,000 rpm</dd>
-            <dt>Mass</dt><dd>146 kg</dd>
-            <dt>Parts</dt><dd>478 named objects</dd>
-            <dt>Checks</dt><dd>40 passing</dd>
-          </dl>
-          <div class="links">
-            <a class="primary" href="https://krabduke.github.io/car-engine-v8-hybrid/viewer/">Open viewer</a>
-            <a href="https://krabduke.github.io/car-engine-v8-hybrid/drawings.pdf">Drawings</a>
-            <a href="https://github.com/krabduke/car-engine-v8-hybrid">Source</a>
-          </div>
-        </div>
-      </article>
-
-      <div class="link" aria-hidden="true">
-        <div class="rule"></div>
-        <div class="word">powers</div>
-        <div class="rule"></div>
-      </div>
-
-      <article class="card">
-        <img class="shot" src="img/vx1.jpg" alt="Render of the VX-1 Vortex ground-effect fan car">
-        <div class="body">
-          <div class="role">Vehicle</div>
-          <h3>VX-1 Vortex</h3>
-          <p class="tag">Ground-effect fan car, built to beat F1 on an F1 circuit</p>
-          <dl>
-            <dt>Mass</dt><dd>700 kg — F1 minimum is 798</dd>
-            <dt>Fan downforce</dt><dd>650 kg, near speed-independent</dd>
-            <dt>Grip at 80 km/h</dt><dd>3.34 g vs F1's 2.03</dd>
-            <dt>Lap</dt><dd>10.7 s faster than F1</dd>
-            <dt>Parts</dt><dd>287 named assemblies</dd>
-            <dt>Checks</dt><dd>45 passing</dd>
-          </dl>
-          <div class="links">
-            <a class="primary" href="https://krabduke.github.io/aero-hypercar/viewer/">Open viewer</a>
-            <a href="https://krabduke.github.io/aero-hypercar/drawings.pdf">Drawings</a>
-            <a href="https://github.com/krabduke/aero-hypercar">Source</a>
-          </div>
-        </div>
-      </article>
-
-    </div>
+    <header>
+      <h2 id="h-air">Aviation</h2>
+      <p>An original adaptive-cycle fighter engine, and the twin-engine agile fighter designed around it.
+      Move the pointer across a drawing to lift it off the render beneath.</p>
+    </header>
+    <div class="spread" data-pair="aether nyx"></div>
   </div>
 </section>
 
-<section class="pair earlier" style="--tint:var(--ink-dim)">
+<section class="pair" aria-labelledby="h-road">
   <div class="wrap">
-    <h2>First version</h2>
-    <p class="sub">The aviation pair before Aether and Nyx replaced it: a model of a production turbofan, and a model aircraft built around it at 1:33. Kept as it was, at tag v1.</p>
-    <div class="row">
+    <header>
+      <h2 id="h-road">Automotive</h2>
+      <p>A hybrid V8, and a fan car built around it to beat Formula 1 on a Formula 1 circuit.</p>
+    </header>
+    <div class="spread" data-pair="v8 vx1"></div>
+  </div>
+</section>
 
-      <article class="card">
-        <img class="shot" src="img/f110.jpg" alt="Cutaway render of the F110 turbofan showing fan, compressor, combustor and turbines">
-        <div class="body">
-          <div class="role">Engine, v1</div>
+<section class="check" aria-labelledby="h-check">
+  <div class="wrap">
+    <div>
+      <h2 id="h-check">The air, checked</h2>
+      <p>The car and the jet through OpenFOAM, on their geometry as built, beside every aerodynamic number
+      we had published. Where the solver disagreed, the number was corrected, and twice the design was.</p>
+      <div class="actions"><a class="go" href="aero/">Read the study</a></div>
+    </div>
+    <ul class="redlines" id="redlines"></ul>
+  </div>
+</section>
+
+<section class="earlier" aria-labelledby="h-v1">
+  <div class="wrap">
+    <header>
+      <h2 id="h-v1">First version</h2>
+      <p>The aviation pair before Aether and Nyx replaced it: a model of a production turbofan, and a model
+      aircraft built around it at 1:33. Kept as it was, at tag v1.</p>
+    </header>
+    <div class="row">
+      <article class="old">
+        <div class="shot"><img src="img/f110.jpg" alt="Cutaway render of the F110 turbofan" loading="lazy"><span class="stamp">Superseded</span></div>
+        <div>
           <h3>F110-GE-129</h3>
-          <p class="tag">Augmented low-bypass turbofan — the engine in the F-16C/D</p>
-          <dl>
-            <dt>Thrust</dt><dd>29,000 lbf with afterburner</dd>
-            <dt>Airfoils</dt><dd>2,044 individually lofted</dd>
-            <dt>Checks</dt><dd>50 passing</dd>
-          </dl>
-          <div class="links">
-            <a class="primary" href="https://krabduke.github.io/f110-turbofan/viewer/">Open viewer</a>
-            <a href="https://github.com/krabduke/f110-turbofan">Source</a>
-          </div>
+          <p>The augmented low-bypass turbofan in the F-16C/D: 29,000 lbf with afterburner, 2,044 lofted airfoils.</p>
+          <div class="actions"><a href="https://krabduke.github.io/f110-turbofan/viewer/">Open the viewer</a><a href="https://github.com/krabduke/f110-turbofan">Source</a></div>
         </div>
       </article>
-
-      <div class="link" aria-hidden="true">
-        <div class="rule"></div>
-        <div class="word">powers</div>
-        <div class="rule"></div>
-      </div>
-
-      <article class="card">
-        <img class="shot" src="img/rcjet.jpg" alt="Render of the RC jet, a cropped-delta model aircraft">
-        <div class="body">
-          <div class="role">Vehicle, v1</div>
+      <article class="old">
+        <div class="shot"><img src="img/rcjet.jpg" alt="Render of the RC jet, a cropped-delta model aircraft" loading="lazy"><span class="stamp">Superseded</span></div>
+        <div>
           <h3>RC Jet</h3>
-          <p class="tag">Cropped-delta model aircraft, inside a 500 × 300 mm envelope</p>
-          <dl>
-            <dt>All-up weight</dt><dd>558 g</dd>
-            <dt>Engine</dt><dd>F110 at 1:33 — 140 mm</dd>
-            <dt>Checks</dt><dd>34 passing</dd>
-          </dl>
-          <div class="links">
-            <a class="primary" href="https://krabduke.github.io/rc-jet/viewer/">Open viewer</a>
-            <a href="https://github.com/krabduke/rc-jet">Source</a>
-          </div>
+          <p>A cropped-delta model aircraft inside a 500 by 300 mm envelope, 558 g all up, on the F110 at 1:33.</p>
+          <div class="actions"><a href="https://krabduke.github.io/rc-jet/viewer/">Open the viewer</a><a href="https://github.com/krabduke/rc-jet">Source</a></div>
         </div>
       </article>
-
     </div>
   </div>
 </section>
 
-<section class="study">
+<section class="method" aria-labelledby="h-method">
   <div class="wrap">
-    <a class="band" href="aero/">
-      <div>
-        <h2>The air, checked</h2>
-        <p>The VX-1 and the Nyx through OpenFOAM, set beside every aerodynamic number we published.
-        The car's fans work, better than claimed, but its floor lifts without them; the Nyx is as
-        unstable as designed, with more drag than assumed.</p>
-      </div>
-      <span class="go">Read the study</span>
-    </a>
-  </div>
-</section>
-
-<section class="method">
-  <div class="wrap">
-    <h2>How these are built</h2>
+    <h2 id="h-method">How they are built</h2>
     <div class="cols">
-      <div>
-        <h4>One file holds every dimension</h4>
-        <p>
-          Each project has a <code>spec.py</code> carrying every measurement,
-          mass and material. No geometry module contains a literal dimension —
-          if a number describes the machine, it lives in one place and
-          everything else derives from it.
-        </p>
-      </div>
-      <div>
-        <h4>The geometry is testable without Blender</h4>
-        <p>
-          Everything up to the part builders is pure Python with no
-          <code>bpy</code> import, producing plain vertex and face lists. Blender
-          is the last stage, not the environment the work happens in.
-        </p>
-      </div>
-      <div>
-        <h4>Every project checks itself</h4>
-        <p>
-          <code>make verify</code> measures what was actually built and asserts
-          it against the specification — envelope, balance, kinematics,
-          stability, performance. Several real design errors were caught this
-          way and are documented in each repository.
-        </p>
-      </div>
+      <div><h4>One file holds every dimension</h4>
+        <p>Each project has a <code>spec.py</code> carrying every measurement, mass and material. No geometry
+        module holds a literal dimension: if a number describes the machine, it lives in one place.</p></div>
+      <div><h4>Every project checks itself</h4>
+        <p><code>make verify</code> measures what was built and asserts it against the specification: envelope,
+        clearances, joints, kinematics, stability, performance. It has caught real design errors.</p></div>
+      <div><h4>Drawn to scale</h4>
+        <p><code>make drawings</code> writes an A1 package: a general arrangement and a sheet for every assembly,
+        third-angle projection, dimensioned, with a numbered parts list.</p></div>
+      <div><h4>Checked by an outside solver</h4>
+        <p>The aerodynamics went through OpenFOAM on the geometry exactly as built. It found the car's fans could
+        not breathe and its balance was wrong, and both were fixed in the models.</p></div>
     </div>
   </div>
 </section>
 
-<footer>
-  <div class="wrap" style="display:flex; justify-content:space-between; gap:20px; flex-wrap:wrap; width:100%">
-    <span>Built with Blender and Python. MIT licensed.</span>
-    <span><a href="https://github.com/krabduke">github.com/krabduke</a></span>
+<footer class="wrap">
+  <div class="tblock" aria-label="About this site">
+    <div><div class="l">Title</div><div class="v">Parametric machines</div></div>
+    <div><div class="l">Drawn by</div><div class="v"><a href="https://github.com/krabduke">krabduke</a></div></div>
+    <div><div class="l">Tools</div><div class="v">Blender, Python, OpenFOAM</div></div>
+    <div><div class="l">Licence</div><div class="v">MIT</div></div>
+    <div><div class="l">Sheet</div><div class="v">1 of 1</div></div>
   </div>
 </footer>
 
+<script type="module">
+const $ = (s, r = document) => r.querySelector(s);
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* The machines. The figures are the models' own; where the aero study
+   corrected one, the corrected value stands with the old one struck out. */
+const M = {
+  nyx: {name: 'Nyx', kind: 'Canard-delta fighter', hero: 'plan', plate: 'plan', no: 'NYXJET-00',
+    viewer: 'https://krabduke.github.io/nyx-jet/viewer/', pdf: 'https://krabduke.github.io/nyx-jet/drawings.pdf',
+    src: 'https://github.com/krabduke/nyx-jet', render: 'img/nyx.jpg',
+    line: 'Twin-engine canard-delta fighter with swivel nozzles, built to out-turn everything.',
+    does: 'Fly it on its own aerodynamics, lower the gear, open the bay and the canopy, or take it apart.',
+    figs: [['Instantaneous turn', '34.7 °/s at sea level'], ['Sustained turn', '<s>25.5</s>22.4 °/s at 4.6 g'],
+           ['Thrust to weight', '1.58'], ['Length by span', '14.9 by 13.2 m'], ['Parts', '434, with 30 checks passing']]},
+  aether: {name: 'Aether AX-1', kind: 'Adaptive-cycle turbofan', hero: 'elev', plate: 'elev', no: 'AETHER-00',
+    viewer: 'https://krabduke.github.io/aether-ax1/viewer/', pdf: 'https://krabduke.github.io/aether-ax1/drawings.pdf',
+    src: 'https://github.com/krabduke/aether-ax1', render: 'img/aether.jpg',
+    line: 'Three-stream adaptive-cycle turbofan with a three-bearing swivel nozzle.',
+    does: 'Run it from idle to full reheat, swivel the nozzle, cut it open, or split it module by module.',
+    figs: [['Thrust', '90.5 kN dry, 134.9 kN reheat'], ['Overall pressure ratio', '36.6'],
+           ['Thrust vectoring', '0 to 95° down, ±12° of yaw'], ['Airfoils', '1,186, each lofted'],
+           ['Parts', '134, with 120 checks passing']]},
+  v8: {name: 'RX-8V Vertex', kind: 'Flat-plane V8 hybrid', hero: 'end', plate: 'end', no: 'CARENG-00',
+    viewer: 'https://krabduke.github.io/car-engine-v8-hybrid/viewer/', pdf: 'https://krabduke.github.io/car-engine-v8-hybrid/drawings.pdf',
+    src: 'https://github.com/krabduke/car-engine-v8-hybrid', render: 'img/v8.jpg',
+    line: '2.0 litre flat-plane V8, hot-vee twin turbo, 280 kW hybrid.',
+    does: 'Run it on a live slider-crank, section it through any cylinder, show its airflow, or strip it on the bench.',
+    figs: [['Displacement', '1,999 cc'], ['Combined output', '1,254 hp'], ['Redline', '16,000 rpm'],
+           ['Mass', '146 kg'], ['Parts', '478, with 40 checks passing']]},
+  vx1: {name: 'VX-1 Vortex', kind: 'Ground-effect fan car', hero: 'elev', plate: 'plan', no: 'AEROHY-00',
+    viewer: 'https://krabduke.github.io/aero-hypercar/viewer/', pdf: 'https://krabduke.github.io/aero-hypercar/drawings.pdf',
+    src: 'https://github.com/krabduke/aero-hypercar', render: 'img/vx1.jpg',
+    line: 'A ground-effect fan car, built to beat Formula 1 on a Formula 1 circuit.',
+    does: 'Put it in the wind tunnel, switch the fans, cut away a side, or take it apart in the garage.',
+    figs: [['Mass', '700 kg, against F1’s 798'], ['Fan downforce', '<s>650</s>1,073 kg at 180 km/h'],
+           ['Drag area, fans running', '<s>1.28</s>1.38 m²'], ['Length by width', '5.1 by 2.0 m'],
+           ['Parts', '287, with 45 checks passing']]},
+};
+const ORDER = ['nyx', 'aether', 'vx1', 'v8'];
+const names = {plan: 'Plan', elev: 'Side elevation', end: 'End view'};
+const GA = await (await fetch('img/ga/ga.json')).json();
+
+/* ---------------- the drawing board ---------------- */
+$('#picker').innerHTML = ORDER.map(k => `<li><button type="button" data-k="${k}" aria-pressed="false">
+  <span class="n">${M[k].name}</span><span class="k">${M[k].kind}</span></button></li>`).join('');
+$('#refs').innerHTML =
+  [...Array(8)].map((_, i) => `<span style="left:calc(16px + (100% - 32px) * ${(i + .5) / 8}); top:8px">${i + 1}</span>`).join('') +
+  [...Array(5)].map((_, i) => `<span style="top:calc(16px + (100% - 16px) * ${(i + .5) / 5}); left:8px">${'ABCDE'[i]}</span>`).join('');
+
+function dims(k){
+  const g = GA[k], v = g.views[M[k].hero], svg = $('#dims'), img = $('#gaimg');
+  const W = img.clientWidth, H = img.clientHeight;
+  if (!W || !H) return;
+  const s = W / v.w, pad = v.pad * s, o = 34;
+  const ax = v.right.findIndex(c => Math.abs(c) > .5), ay = v.up.findIndex(c => Math.abs(c) > .5);
+  const L = g.hi[ax] - g.lo[ax], Hh = g.hi[ay] - g.lo[ay];
+  const x0 = o + pad, x1 = o + W - pad, y0 = o + pad, y1 = o + H - pad, yb = y1 + 22, xr = x1 + 22;
+  const arrow = (x, y, dx, dy) => { const a = 8, w = 2.6, bx = x - dx * a, by = y - dy * a;
+    return `<path class="arrow" d="M${x},${y} L${bx - dy * w},${by + dx * w} L${bx + dy * w},${by - dx * w} Z"/>`; };
+  const seg = (a, b, c, d) => `<line class="dim" x1="${a}" y1="${b}" x2="${c}" y2="${d}" style="--len:${Math.ceil(Math.hypot(c - a, d - b))}"/>`;
+  svg.setAttribute('width', W + 2 * o); svg.setAttribute('height', H + 2 * o);
+  svg.innerHTML =
+    seg(x0, y1 + 5, x0, yb + 6) + seg(x1, y1 + 5, x1, yb + 6) + seg(x0, yb, x1, yb) +
+    arrow(x0, yb, -1, 0) + arrow(x1, yb, 1, 0) +
+    `<text x="${(x0 + x1) / 2}" y="${yb - 6}" text-anchor="middle">${Math.round(L).toLocaleString()}</text>` +
+    seg(x1 + 5, y0, xr + 6, y0) + seg(x1 + 5, y1, xr + 6, y1) + seg(xr, y0, xr, y1) +
+    arrow(xr, y0, 0, -1) + arrow(xr, y1, 0, 1) +
+    `<text x="${xr + 6}" y="${(y0 + y1) / 2}" text-anchor="middle" transform="rotate(90 ${xr + 6} ${(y0 + y1) / 2})" dy="-2">${Math.round(Hh).toLocaleString()}</text>`;
+}
+function fit(k){
+  // the drawing laid out to its own proportion inside the sheet's drawing area
+  const v = GA[k].views[M[k].hero], d = $('#draw'), cs = getComputedStyle(d);
+  const aw = d.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+  const ah = d.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+  $('#fig').style.width = `${Math.max(40, Math.min(aw, ah * v.w / v.h))}px`;
+}
+function pick(k, first){
+  for (const b of document.querySelectorAll('#picker button')) b.setAttribute('aria-pressed', b.dataset.k === k);
+  const m = M[k], g = GA[k], img = $('#gaimg'), svg = $('#dims');
+  img.alt = `${names[m.hero]} of the ${m.name}, from its general-arrangement drawing at 1:${g.scale}`;
+  fit(k);
+  img.onload = () => {
+    dims(k);
+    if (!reduced) {
+      img.classList.remove('plotting'); svg.classList.remove('redraw'); void img.offsetWidth;
+      img.classList.add('plotting'); svg.classList.add('redraw');
+    }
+  };
+  img.src = `img/ga/${k}/${m.hero}.png`;
+  $('#tblock').innerHTML = `
+    <div><div class="l">Title</div><div class="v">${m.name}, general arrangement</div></div>
+    <div><div class="l">Scale</div><div class="v">1:${g.scale}</div></div>
+    <div><div class="l">View</div><div class="v">${names[m.hero]}</div></div>
+    <div><div class="l">Drawing</div><div class="v"><a href="${m.pdf}">${m.no}</a></div></div>`;
+  if (!first) history.replaceState(null, '', `#${k}`);
+}
+for (const b of document.querySelectorAll('#picker button')) b.addEventListener('click', () => pick(b.dataset.k));
+new ResizeObserver(() => { const k = $('#picker [aria-pressed="true"]')?.dataset.k; if (k) { fit(k); dims(k); } }).observe($('#draw'));
+pick(ORDER.includes(location.hash.slice(1)) ? location.hash.slice(1) : 'nyx', true);
+
+/* ---------------- the pairs ---------------- */
+function plate(k, role){
+  const m = M[k];
+  return `<article class="plate">
+    <div class="view" role="group" aria-label="${m.name}: its drawing over its render">
+      <img class="render" src="${m.render}" alt="Render of the ${m.name}" loading="lazy">
+      <div class="overlay"><img class="line" src="img/ga/${k}/${m.plate}.png" alt="${names[m.plate]} of the ${m.name}" loading="lazy"></div>
+      <span class="edge" aria-hidden="true"></span>
+      <button class="toggle" type="button" aria-pressed="false">Show the render</button>
+    </div>
+    <h3>${m.name}</h3>
+    <p class="kind">${role}. ${m.line}</p>
+    <p class="does">${m.does}</p>
+    <dl>${m.figs.map(([a, b]) => `<dt>${a}</dt><dd>${b}</dd>`).join('')}</dl>
+    <div class="actions">
+      <a class="go" href="${m.viewer}">Open the viewer</a>
+      <a href="${m.pdf}">Drawings</a>
+      <a href="${m.src}">Source</a>
+    </div>
+  </article>`;
+}
+const powers = `<div class="powers" aria-hidden="true"><svg viewBox="0 0 80 20"><path d="M2 5 V15 M2 10 H70" stroke="#1B2124" stroke-width="1.2" fill="none"/><path d="M78 10 L69 6.5 L69 13.5 Z" fill="#1B2124"/></svg><span>goes into</span></div>`;
+for (const s of document.querySelectorAll('.spread')) {
+  const [a, b] = s.dataset.pair.split(' ');
+  s.innerHTML = plate(a, 'The engine') + powers + plate(b, 'The vehicle');
+}
+// lift the drawing: the render shows through behind a red edge that follows the pointer
+for (const v of document.querySelectorAll('.view')) {
+  const btn = $('.toggle', v);
+  const set = (x) => v.style.setProperty('--x', `${x}%`);
+  const apply = set;
+  v.addEventListener('pointermove', (e) => {
+    if (e.pointerType !== 'mouse' || v.classList.contains('shown')) return;
+    const r = v.getBoundingClientRect();
+    v.classList.add('live'); apply(Math.max(0, Math.min(100, 100 * (e.clientX - r.left) / r.width)));
+  });
+  v.addEventListener('pointerleave', () => { if (!v.classList.contains('shown')) { v.classList.remove('live'); apply(0); } });
+  btn.addEventListener('click', () => {
+    const on = !v.classList.contains('shown');
+    v.classList.toggle('shown', on); v.classList.remove('live'); apply(on ? 100 : 0);
+    btn.setAttribute('aria-pressed', on); btn.textContent = on ? 'Show the drawing' : 'Show the render';
+  });
+}
+
+/* ---------------- the check: the red pen ---------------- */
+const R = [
+  ['VX-1 downforce, fans stopped', 'the floor, sealed for the fans, lifts without them', '4.55', '−0.88', 'm²'],
+  ['What the VX-1’s fans add', 'at 180 km/h, once their intakes could breathe', '650', '1,073', 'kg'],
+  ['VX-1 downforce on the front axle', 'so the wings were retrimmed', '44.5', '31.7', '% front'],
+  ['Nyx sustained turn', 'more drag than assumed, on both counts', '25.5', '22.4', '°/s'],
+  ['Nyx lift slope', 'the vortex-lattice figure holds', '2.87', '2.98', 'per rad', true],
+];
+$('#redlines').innerHTML = R.map(([w, n, a, b, u, holds]) => `<li class="${holds ? 'holds' : ''}">
+  <span class="what">${w}<small>${n}</small></span>
+  <span class="fig">${holds ? '' : `<s>${a}</s>`}<b>${b}</b><small>${u}${holds ? `, we said ${a}` : ''}</small></span></li>`).join('');
+</script>
 </body>
 </html>

@@ -8,136 +8,149 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2314181B'/%3E%3Cpath d='M4 20 C10 10 22 10 28 20' fill='none' stroke='%237C99A5' stroke-width='2'/%3E%3Cpath d='M4 25 H28' stroke='%23C0793C' stroke-width='2'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600;700&family=Barlow:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#14181B;
-    --bg-lift:#1B2125;
-    --line:#2B3338;
-    --ink:#D6DAD5;
-    --ink-dim:#8B949A;
-    --ink-faint:#6A7278;
-    --air:#7C99A5;
-    --ground:#C0793C;
-    --suction:#3A6FC2;
-    --pressure:#D9642C;
-    --hold:#9DB98A;
-    --miss:#E0A25A;
+    --film:#E7EBE7; --film-2:#DCE2DE; --ink:#1B2124; --ink-2:#56616A; --ink-3:#7F888C;
+    --rule:#C3CAC6; --red:#C23A21; --blue:#4F7280;
+    --cond:"Barlow Semi Condensed", "Barlow", system-ui, sans-serif;
+    /* the names the page's script and markup use */
+    --bg:var(--film); --line:var(--rule); --ink-dim:var(--ink-2); --ink-faint:var(--ink-3);
+    --tint:var(--ink);
   }
   *{box-sizing:border-box}
-  body{
-    margin:0; background:var(--bg); color:var(--ink);
-    font-family:Archivo,system-ui,-apple-system,"Segoe UI",sans-serif;
-    font-size:15.5px; line-height:1.6; -webkit-font-smoothing:antialiased;
-  }
+  body{margin:0; background:var(--film); color:var(--ink);
+       font-family:Barlow, system-ui, -apple-system, "Segoe UI", sans-serif;
+       font-size:16px; line-height:1.6; -webkit-font-smoothing:antialiased; font-variant-numeric:tabular-nums}
   a{color:inherit}
-  .wrap{max-width:1160px; margin:0 auto; padding:0 24px}
-  .prose{max-width:68ch}
-  .back{display:inline-block; margin-top:28px; font-size:13px; color:var(--ink-dim); text-decoration:none}
-  .back:hover{color:var(--ink)}
+  :focus-visible{outline:2px solid var(--red); outline-offset:2px}
+  .wrap{max-width:1240px; margin:0 auto; padding:0 28px}
+  .prose{max-width:66ch}
+  .top{display:flex; justify-content:space-between; align-items:baseline; gap:20px; padding-top:22px}
+  .mark{font-family:var(--cond); font-weight:600; font-size:18px; text-decoration:none}
+  .top nav{display:flex; gap:22px; font-size:14.5px}
+  .top nav a{text-decoration:none; color:var(--ink-2)}
+  .top nav a:hover{color:var(--ink); text-decoration:underline; text-decoration-color:var(--red); text-underline-offset:4px}
+  .back{display:none}
 
-  header{padding:40px 0 44px; border-bottom:1px solid var(--line)}
-  header h1{margin:0; font-size:clamp(32px, 5.4vw, 52px); font-weight:700; letter-spacing:-.03em; line-height:1.04}
-  header p{margin:18px 0 0; color:var(--ink-dim); font-size:17px}
+  header{padding:46px 0 54px; border-bottom:1px solid var(--rule)}
+  header h1{margin:0; font-family:var(--cond); font-weight:600; font-size:clamp(44px, 6.4vw, 84px);
+            letter-spacing:-.018em; line-height:.95}
+  header h1 s{color:var(--ink-3); text-decoration-color:var(--red); text-decoration-thickness:4px}
+  header p{margin:22px 0 0; color:var(--ink-2); font-size:18px}
   header p b{color:var(--ink); font-weight:600}
+  header .lead{display:grid; grid-template-columns:7fr 5fr; gap:48px; align-items:end}
+  .biggest{margin:0; border-left:1.5px solid var(--ink); padding:4px 0 6px 26px}
+  .biggest .pair{font-family:var(--cond); font-weight:600; line-height:.9; display:flex; flex-wrap:wrap;
+                 align-items:baseline; gap:4px 22px}
+  .biggest s{font-size:clamp(44px, 5vw, 72px); color:var(--ink-3); font-weight:500;
+             text-decoration-color:var(--red); text-decoration-thickness:5px}
+  .biggest b{font-size:clamp(64px, 7.6vw, 112px); color:var(--red); font-weight:600; letter-spacing:-.02em}
+  .biggest figcaption{margin-top:14px; color:var(--ink-2); font-size:15px; max-width:40ch}
+  @media (max-width:900px){ header .lead{grid-template-columns:1fr; gap:28px} }
 
-  section.vehicle{padding:60px 0; border-bottom:1px solid var(--line)}
-  .vehicle h2{margin:0; font-size:28px; font-weight:650; letter-spacing:-.022em}
-  .vehicle .kind{margin:2px 0 0; color:var(--tint); font-size:14px; font-weight:600}
-  .vehicle > .wrap > .prose p{color:var(--ink-dim); margin:14px 0 0}
+  section.vehicle{padding:64px 0; border-bottom:1px solid var(--rule)}
+  .vehicle h2{margin:0; font-family:var(--cond); font-size:44px; font-weight:600; letter-spacing:-.015em; line-height:1}
+  .vehicle .kind{margin:6px 0 0; color:var(--ink-2); font-size:15.5px}
+  .vehicle > .wrap > .prose p{color:var(--ink-2); margin:16px 0 0; font-size:16.5px}
 
-  /* the ledger: what we said, what the solver says */
-  .ledger{margin:34px 0 0; border-top:1px solid var(--line)}
-  .claim{
-    display:grid; grid-template-columns:minmax(180px, 1.3fr) 1fr 1fr minmax(220px, 1.4fr);
-    gap:6px 28px; padding:20px 0; border-bottom:1px solid var(--line); align-items:start;
-  }
-  .claim .what{font-weight:600; font-size:16px}
-  .claim .src{color:var(--ink-faint); font-size:13px; margin-top:2px}
-  .claim .num{font-variant-numeric:tabular-nums}
-  .claim .num .v{font-size:27px; font-weight:600; letter-spacing:-.01em; line-height:1.15}
-  .claim .num .v small{font-size:14px; color:var(--ink-dim); font-weight:500; margin-left:3px}
-  .claim .num .l{color:var(--ink-faint); font-size:12.5px}
-  .claim .num.cfd .v{color:var(--tint)}
-  .claim .num .sd{color:var(--ink-faint); font-size:12.5px}
-  .claim .verdict{font-size:15px}
-  .claim .verdict b{display:block; font-size:17px; font-weight:650; letter-spacing:-.01em}
-  .claim .verdict.hold b{color:var(--hold)}
-  .claim .verdict.miss b{color:var(--miss)}
-  .claim .verdict span{color:var(--ink-dim); font-size:13.5px}
-  .claim .bar{grid-column:2 / 4; height:6px; position:relative; margin-top:6px}
-  .claim .bar i{position:absolute; top:0; height:6px; border-radius:1px}
-  .claim .bar .said{background:var(--ink-faint)}
-  .claim .bar .got{background:var(--tint); top:8px}
-  .pending{color:var(--ink-faint); font-style:italic}
+  /* the ledger: what we said, struck through where the air disagreed */
+  .ledger{margin:38px 0 0; border-top:1.5px solid var(--ink)}
+  .claim{display:grid; grid-template-columns:minmax(190px, 1.3fr) 1fr 1fr minmax(230px, 1.4fr);
+         gap:6px 28px; padding:20px 0; border-bottom:1px solid var(--rule); align-items:start}
+  .claim .what{font-family:var(--cond); font-weight:600; font-size:20px; line-height:1.2}
+  .claim .src{color:var(--ink-3); font-size:13.5px; margin-top:3px}
+  .claim .num .v{font-family:var(--cond); font-size:32px; font-weight:600; line-height:1.1}
+  .claim .num .v small{font-family:Barlow; font-size:14px; color:var(--ink-2); font-weight:500; margin-left:4px}
+  .claim .num .l{color:var(--ink-3); font-size:12.5px}
+  .claim .num.struck .v{color:var(--ink-3); font-weight:500}
+  .claim .num.struck s{text-decoration-color:var(--red); text-decoration-thickness:2.5px}
+  .claim .num.cfd .v{color:var(--ink)}
+  .claim .num .sd{color:var(--ink-3); font-size:12.5px}
+  .claim .verdict b{display:block; font-family:var(--cond); font-size:21px; font-weight:600; line-height:1.2}
+  .claim .verdict.hold b{color:var(--ink)}
+  .claim .verdict.hold b::before{content:""; display:inline-block; width:9px; height:9px; border-radius:50%;
+                                 background:var(--blue); margin:0 9px 3px 0}
+  .claim .verdict.miss b{color:var(--red)}
+  .claim .verdict span{color:var(--ink-2); font-size:14px}
+  .claim .bar{grid-column:2 / 4; height:5px; position:relative; margin-top:8px}
+  .claim .bar i{position:absolute; top:0; height:4px}
+  .claim .bar .said{background:var(--rule)}
+  .claim .bar .got{background:var(--ink); top:7px}
+  .pending{color:var(--ink-3); font-style:italic}
 
-  /* the pressure map */
-  .figure{margin:40px 0 0; display:grid; grid-template-columns:1fr 260px; gap:0;
-          border:1px solid var(--line); background:#0F1315}
-  .figure .stage{position:relative; min-height:460px}
+  /* the pressure maps: a lightbox set into the sheet */
+  .figure{margin:44px 0 0; display:grid; grid-template-columns:1fr 270px; border:1.5px solid var(--ink);
+          background:#12171A; --ink:#D6DAD5; --ink-2:#98A1A6; --ink-3:#6E777C; --rule:#2B3338; --line:#2B3338; color:var(--ink)}
+  .figure .stage{position:relative; min-height:480px}
   .figure canvas{display:block; width:100%; height:100%; position:absolute; inset:0; touch-action:none}
-  .figure aside{border-left:1px solid var(--line); padding:20px 18px; font-size:13.5px; color:var(--ink-dim)}
-  .figure aside h3{margin:0 0 8px; color:var(--ink); font-size:14px; font-weight:600}
+  .figure aside{border-left:1px solid var(--rule); padding:20px 18px; font-size:13.5px; color:var(--ink-2)}
+  .figure aside h3{margin:0 0 8px; color:var(--ink); font-size:15px; font-weight:600; font-family:var(--cond)}
   .figure aside p{margin:0 0 14px}
-  .scale{height:10px; margin:6px 0 4px; border-radius:1px}
+  .scale{height:10px; margin:6px 0 4px}
   .scale.cp{background:linear-gradient(90deg,#21479E,#669ED9 35%,#E6E8E1 50%,#F29E54 70%,#B82E1A)}
   .scale.spd{background:linear-gradient(90deg,#0F1429,#346BAD 38%,#CCDBE0 65%,#FAD680 77%,#ED7838)}
-  .ticks{display:flex; justify-content:space-between; font-size:11.5px; color:var(--ink-faint);
-         font-variant-numeric:tabular-nums}
+  .ticks{display:flex; justify-content:space-between; font-size:11.5px; color:var(--ink-3)}
   .figure label{display:flex; gap:8px; align-items:center; margin:6px 0; color:var(--ink); cursor:pointer}
-  .figure input{accent-color:var(--tint)}
-  .figure .load{position:absolute; inset:0; display:grid; place-items:center; color:var(--ink-faint); font-size:13px}
-  .figcap{margin:10px 0 0; color:var(--ink-faint); font-size:13px}
+  .figure input{accent-color:#D6DAD5}
+  .figure .load{position:absolute; inset:0; display:grid; place-items:center; color:var(--ink-3); font-size:13px}
   .views{display:flex; gap:6px; margin:0 0 16px}
-  .views button{font:inherit; font-size:12.5px; color:var(--ink); background:transparent; border:1px solid var(--line);
+  .views button{font:inherit; font-size:12.5px; color:var(--ink); background:transparent; border:1px solid #4A555B;
                 padding:5px 10px; cursor:pointer}
-  .views button:hover{border-color:var(--tint)}
+  .views button:hover{border-color:#D6DAD5}
+  .figcap{margin:10px 0 0; color:var(--ink-3); font-size:13.5px}
 
-  /* charts */
-  .charts{margin:40px 0 0; display:grid; grid-template-columns:1fr 1fr; gap:28px}
-  .chart h4{margin:0 0 6px; font-size:14px; font-weight:600}
-  .chart p{margin:6px 0 0; color:var(--ink-faint); font-size:13px}
-  .chart svg{display:block; width:100%; height:auto; background:#0F1315; border:1px solid var(--line)}
-  .chart svg text{fill:var(--ink-faint); font-size:11px; font-family:inherit}
-  .chart svg .axis{stroke:#34404A; stroke-width:1}
-  .chart svg .grid{stroke:#20282D; stroke-width:1}
+  .charts{margin:44px 0 0; display:grid; grid-template-columns:1fr 1fr; gap:32px}
+  .chart h4{margin:0 0 8px; font-family:var(--cond); font-size:19px; font-weight:600}
+  .chart p{margin:8px 0 0; color:var(--ink-3); font-size:13.5px}
+  .chart svg{display:block; width:100%; height:auto; background:var(--film-2); border:1.5px solid var(--ink)}
+  .chart svg text{fill:var(--ink-2); font-size:11px; font-family:Barlow, sans-serif}
+  .chart svg .axis{stroke:var(--ink-3); stroke-width:1}
+  .chart svg .grid{stroke:#CDD4D0; stroke-width:1}
 
-  .notes{margin:34px 0 0; display:grid; grid-template-columns:repeat(3, 1fr); gap:26px}
-  .notes h4{margin:0 0 6px; font-size:14px; font-weight:600}
-  .notes p{margin:0; color:var(--ink-dim); font-size:14px}
+  .notes{margin:38px 0 0; display:grid; grid-template-columns:repeat(3, 1fr); gap:28px;
+         border-top:1px solid var(--rule); padding-top:24px}
+  .notes h4{margin:0 0 6px; font-family:var(--cond); font-size:19px; font-weight:600}
+  .notes p{margin:0; color:var(--ink-2); font-size:15px}
 
-  .method{padding:60px 0 44px}
-  .method h2{margin:0 0 18px; font-size:22px; font-weight:650; letter-spacing:-.018em}
-  .method .cols{display:grid; grid-template-columns:repeat(3, 1fr); gap:34px}
-  .method h4{margin:0 0 7px; font-size:14px; font-weight:600}
-  .method p{margin:0 0 10px; color:var(--ink-dim); font-size:14px}
-  code{background:#222A2E; padding:1px 5px; font-size:12.5px; font-family:ui-monospace, SFMono-Regular, Menlo, monospace}
-  pre{background:#11161A; border:1px solid var(--line); padding:14px 16px; overflow-x:auto; font-size:12.5px;
-      font-family:ui-monospace, SFMono-Regular, Menlo, monospace; color:var(--ink-dim)}
+  .method{padding:64px 0 48px}
+  .method h2{margin:0 0 20px; font-family:var(--cond); font-size:36px; font-weight:600}
+  .method .cols{display:grid; grid-template-columns:repeat(3, 1fr); gap:30px 36px}
+  .method h4{margin:0 0 7px; font-size:16px; font-weight:600}
+  .method p{margin:0 0 10px; color:var(--ink-2); font-size:15px}
+  code{background:var(--film-2); padding:1px 5px; font-size:12.5px; font-family:ui-monospace, SFMono-Regular, Menlo, monospace}
 
-  footer{padding:30px 0 56px; border-top:1px solid var(--line); color:var(--ink-faint); font-size:13px}
-  footer a{color:var(--ink-dim)}
-  :focus-visible{outline:2px solid var(--air); outline-offset:2px}
+  footer{padding:0 0 48px}
+  footer .tb{display:grid; grid-template-columns:2fr 1.2fr 1.4fr 1fr; border:1.5px solid var(--ink); font-size:13px}
+  footer .tb > div{padding:7px 12px 8px; border-left:1px solid var(--ink)}
+  footer .tb > div:first-child{border-left:0}
+  footer .tb .l{color:var(--ink-2); font-size:11.5px}
+  footer .tb .v{font-family:var(--cond); font-weight:600; font-size:17px}
 
   @media (max-width:900px){
     .claim{grid-template-columns:1fr 1fr}
-    .claim .verdict{grid-column:1 / -1}
-    .claim .bar{grid-column:1 / -1}
+    .claim .what{grid-column:1 / -1}
+    .claim .verdict, .claim .bar{grid-column:1 / -1}
     .figure{grid-template-columns:1fr}
-    .figure aside{border-left:0; border-top:1px solid var(--line)}
+    .figure aside{border-left:0; border-top:1px solid var(--rule)}
     .figure .stage{min-height:340px}
     .charts, .notes, .method .cols{grid-template-columns:1fr}
+    footer .tb{grid-template-columns:1fr 1fr}
+    footer .tb > div:nth-child(odd){border-left:0}
+    footer .tb > div:nth-child(n+3){border-top:1px solid var(--ink)}
   }
+  @media (max-width:560px){ .wrap{padding-left:16px; padding-right:16px} .top nav a:last-child{display:none} }
   @media (prefers-reduced-motion:reduce){*{transition-duration:.01ms !important}}
 </style>
 </head>
 <body>
 
-<div class="wrap"><a class="back" href="../">Back to the models</a></div>
+<div class="wrap top"><a class="mark" href="../">Parametric machines</a><nav aria-label="Elsewhere"><a href="../">The machines</a><a href="https://github.com/krabduke/model-gallery/tree/main/aero/study">The study's code</a></nav></div>
 
 <header>
-  <div class="wrap">
-    <h1>The air, checked</h1>
+  <div class="wrap lead">
+    <div>
+    <h1>The air, checked.</h1>
     <div class="prose">
       <p>The VX-1's downforce and drag were targets, written into its specification and never
       computed. The Nyx's lift and stability came from our own vortex-lattice code and a textbook
@@ -145,10 +158,15 @@
       industry and research, on the geometry exactly as it is built, and every number we
       published is set beside what the solver says.</p>
     </div>
+    </div>
+    <figure class="biggest" aria-label="The largest correction">
+      <div class="pair"><s>4.55</s><b>−0.88</b></div>
+      <figcaption>The VX-1's downforce with its fans stopped, in square metres of CL·A. We said the floor alone made 3.35; sealed for the fans, it lifts.</figcaption>
+    </figure>
   </div>
 </header>
 
-<section class="vehicle" id="vx1" style="--tint:var(--ground)">
+<section class="vehicle" id="vx1">
   <div class="wrap">
     <h2>VX-1 Vortex</h2>
     <p class="kind">The ground-effect fan car, at 180 km/h</p>
@@ -174,7 +192,7 @@
   </div>
 </section>
 
-<section class="vehicle" id="nyx" style="--tint:var(--air)">
+<section class="vehicle" id="nyx">
   <div class="wrap">
     <h2>Nyx</h2>
     <p class="kind">The canard-delta fighter, clean, powered off</p>
@@ -208,8 +226,12 @@
 </section>
 
 <footer>
-  <div class="wrap">Run on a laptop with OpenFOAM v2606. The cases and scripts are in
-    <a href="https://github.com/krabduke/model-gallery/tree/main/aero/study">aero/study</a>.</div>
+  <div class="wrap"><div class="tb" aria-label="About this study">
+    <div><div class="l">Title</div><div class="v">The air, checked</div></div>
+    <div><div class="l">Solver</div><div class="v">OpenFOAM v2606</div></div>
+    <div><div class="l">Cases and scripts</div><div class="v"><a href="https://github.com/krabduke/model-gallery/tree/main/aero/study">aero/study</a></div></div>
+    <div><div class="l">Checked by</div><div class="v">the air</div></div>
+  </div></div>
 </footer>
 
 <script type="importmap">
@@ -249,7 +271,7 @@ function ledger(el, rows){
     const w = (v) => `${(100 * Math.abs(v) / max).toFixed(1)}%`;
     return `<div class="claim">
       <div><div class="what">${esc(r.what)}</div><div class="src">${esc(r.src)}</div></div>
-      <div class="num"><div class="l">We said</div><div class="v">${r.saidText}</div></div>
+      <div class="num said ${cls === 'miss' ? 'struck' : ''}"><div class="l">We said</div><div class="v">${cls === 'miss' ? r.saidText.replace(/^([^<]+)/, '<s>$1</s>') : r.saidText}</div></div>
       <div class="num cfd"><div class="l">OpenFOAM</div><div class="v">${r.gotText}</div>
         ${r.sd ? `<div class="sd">${esc(r.sd)}</div>` : ''}</div>
       <div class="verdict ${cls}"><b>${esc(head)}</b><span>${esc(tail)}</span>${r.note ? `<br><span>${esc(r.note)}</span>` : ''}</div>
@@ -382,12 +404,12 @@ if (vx1 && vx1.results) {
   $('#vx1-cap').textContent = vx1.caption || '';
   $('#vx1-notes').innerHTML = (vx1.notes || []).map(n => `<div><h4>${esc(n[0])}</h4><p>${esc(n[1])}</p></div>`).join('');
   const hi = r.history;
-  const series = [{name: 'downforce, fans off', x: hi.it, y: hi.Cl.map(v => -v), color: '#C0793C'},
-                  {name: 'drag, fans off', x: hi.it, y: hi.Cd, color: '#8B949A'}];
+  const series = [{name: 'downforce, fans off', x: hi.it, y: hi.Cl.map(v => -v), color: '#1B2124'},
+                  {name: 'drag, fans off', x: hi.it, y: hi.Cd, color: '#7F888C'}];
   if (vx1.fans) {
     const h2 = vx1.fans.history;
-    series.push({name: 'downforce, fans on', x: h2.it, y: h2.Cl.map(v => -v), color: '#E6C9A6'},
-                {name: 'drag, fans on', x: h2.it, y: h2.Cd, color: '#5E676D'});
+    series.push({name: 'downforce, fans on', x: h2.it, y: h2.Cl.map(v => -v), color: '#4F7280'},
+                {name: 'drag, fans on', x: h2.it, y: h2.Cd, color: '#A9B7BD'});
   }
   const ys = series.flatMap(sr => sr.y);
   chart($('#vx1-conv'), {series, xlab: 'iteration', ylab: 'm²', xr: [0, Math.max(...series.flatMap(sr => sr.x))],
@@ -416,16 +438,16 @@ if (vx1 && vx1.results) {
     const y = 24 + i * 34, v = ro[n] ? -ro[n]['CL.A'] : 0;
     sv += `<text x="${L0 - 8}" y="${y + 9}" text-anchor="end">${n}</text>`;
     const a = XN(Math.min(0, v)), b = XN(Math.max(0, v));
-    sv += `<rect x="${Math.min(a, b)}" y="${y}" width="${Math.abs(b - a)}" height="10" fill="#C0793C"/>`;
+    sv += `<rect x="${Math.min(a, b)}" y="${y}" width="${Math.abs(b - a)}" height="10" fill="#1B2124"/>`;
     if (ron && ron[n]) { const w2 = -ron[n]['CL.A'], c = XN(Math.min(0, w2)), d = XN(Math.max(0, w2));
-      sv += `<rect x="${Math.min(c, d)}" y="${y + 12}" width="${Math.abs(d - c)}" height="6" fill="#E6C9A6"/>`; }
+      sv += `<rect x="${Math.min(c, d)}" y="${y + 12}" width="${Math.abs(d - c)}" height="6" fill="#4F7280"/>`; }
   });
-  const mark = (v, i0, i1, label) => { const x = XN(v); sv += `<line x1="${x}" x2="${x}" y1="${20 + i0 * 34}" y2="${38 + i1 * 34}" stroke="#D6DAD5" stroke-dasharray="3 3"/><text x="${x - 4}" y="${16 + i0 * 34}" text-anchor="end">${label}</text>`; };
+  const mark = (v, i0, i1, label) => { const x = XN(v); sv += `<line x1="${x}" x2="${x}" y1="${20 + i0 * 34}" y2="${38 + i1 * 34}" stroke="#C23A21" stroke-dasharray="4 3" stroke-width="1.5"/><text x="${x - 4}" y="${16 + i0 * 34}" text-anchor="end">${label}</text>`; };
   mark(said.wings, 0, 0, `we said ${said.wings}`);
   mark(said.floor, 1, 1, `we said ${said.floor}`);
   sv += `<text x="${x0 - 6}" y="${H - 8}" text-anchor="end">lift</text><text x="${x0 + 6}" y="${H - 8}">downforce, m² CL·A</text>`;
   $('#vx1-split').innerHTML = `<h4>Where it comes from</h4><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Downforce by region">${sv}</svg>` +
-    `<p>Downforce by part of the car, fans off${ron ? ' (and fans on, the pale bars)' : ''}. The dashed lines are what the spec gave the wings between them and the floor.</p>`;
+    `<p>Downforce by part of the car, fans off${ron ? ' (and fans on, the blue bars)' : ''}. The dashed lines are what the spec gave the wings between them and the floor.</p>`;
   }
 }
 
@@ -460,12 +482,12 @@ if (nyx && nyx.derived) {
   const theory = (k) => { const xs = [], ys = []; for (let d = 0; d <= amax; d += 0.5) { xs.push(d); ys.push(k(d * Math.PI / 180)); } return [xs, ys]; };
   const [tx, ty] = theory(r => { const s = Math.sin(r), c = Math.cos(r); return said.cla * s * c * c + Math.PI * c * s * s; });
   const [lx, ly] = theory(r => said.cla * r);
-  chart($('#nyx-cl'), {series: [{name: 'OpenFOAM', x: a, y: nyx.CL, color: '#7C99A5', dots: true},
-                                {name: 'Our VLM, linear', x: lx, y: ly, color: '#6A7278', dash: '4 4', width: 1.5},
-                                {name: 'Plus vortex lift', x: tx, y: ty, color: '#8B949A', width: 1.5}],
+  chart($('#nyx-cl'), {series: [{name: 'OpenFOAM', x: a, y: nyx.CL, color: '#1B2124', dots: true},
+                                {name: 'Our VLM, linear', x: lx, y: ly, color: '#C23A21', dash: '4 4', width: 1.5},
+                                {name: 'Plus vortex lift', x: tx, y: ty, color: '#7F888C', width: 1.5}],
     xlab: 'angle of attack, degrees', ylab: 'CL', xr: [0, amax], yr: [Math.min(0, ...nyx.CL) - 0.05, Math.max(...nyx.CL, ...ty) + 0.1]});
-  chart($('#nyx-cm'), {series: [{name: 'OpenFOAM', x: nyx.CL, y: nyx.Cm, color: '#7C99A5', dots: true},
-                                {name: 'Our VLM', x: [0, Math.max(...nyx.CL)], y: [nyx.Cm[0], nyx.Cm[0] - said.sm / 100 * Math.max(...nyx.CL)], color: '#6A7278', dash: '4 4'}],
+  chart($('#nyx-cm'), {series: [{name: 'OpenFOAM', x: nyx.CL, y: nyx.Cm, color: '#1B2124', dots: true},
+                                {name: 'Our VLM', x: [0, Math.max(...nyx.CL)], y: [nyx.Cm[0], nyx.Cm[0] - said.sm / 100 * Math.max(...nyx.CL)], color: '#C23A21', dash: '4 4'}],
     xlab: 'CL', ylab: 'Cm about the CG', xr: [Math.min(0, ...nyx.CL), Math.max(...nyx.CL) * 1.05], yr: [Math.min(...nyx.Cm, 0) - 0.02, Math.max(...nyx.Cm, 0) + 0.02]});
   $('#nyx-cm').insertAdjacentHTML('beforeend', '<p>The slope is the static margin, with its sign turned: rising with lift, the nose wants to come up, which is what unstable means.</p>');
 }
