@@ -1,0 +1,6 @@
+[{"name": "fan system", "x": [4.15, 4.8], "y": [0.2, 0.72], "z": [0.12, 0.72]},
+ {"name": "front wheel", "axle": [0.9, 0.335, 0.37], "y": [0.5, 2]},
+ {"name": "rear wheel", "axle": [4.05, 0.345, 0.38], "y": [0.5, 2]},
+ {"name": "front wing", "x": [-1, 0.56], "z": [-1, 0.45]},
+ {"name": "rear wing", "x": [4.1, 9], "z": [0.6, 9]},
+ {"name": "floor and diffuser", "z": [-1, 0.13]}]

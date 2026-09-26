@@ -1,0 +1,27 @@
+[
+ [
+  "The solver",
+  "OpenFOAM v2606, <code>simpleFoam</code>: steady, incompressible Reynolds-averaged Navier-Stokes with Menter's k-omega SST turbulence model, second-order upwind for momentum, wall functions at every surface.",
+  "Forces are the mean of the last 400 iterations; the figure after each is twice the standard deviation over them, which is how much the answer still wanders."
+ ],
+ [
+  "The meshes",
+  "snappyHexMesh wrapped round each vehicle's own surfaces, exported straight from its build: 4.4 million cells for the car, fans off, 4.6 million fans on, and 3.5 million for the Nyx. Half of each vehicle, with a symmetry plane down its centreline.",
+  "Cells of 6 mm on the car's surfaces, 3 to 12 mm on the Nyx's, finer on the flying surfaces' leading edges."
+ ],
+ [
+  "The conditions",
+  "The car at 50 m/s over a road moving at the same speed, its wheels turning at road speed, the ground plane 8 mm up so each tyre has a contact patch. Each fan as two faces across its shroud, drawing 4 m\u00b3/s out ahead of the rotor and returning it behind.",
+  "The Nyx at 100 m/s (Mach 0.29) in free air, gear up and doors shut, its intakes and nozzles capped as a powered-off wind-tunnel model is, moments about its combat centre of gravity."
+ ],
+ [
+  "What it cannot tell you",
+  "RANS with wall functions and no boundary-layer cells is a good judge of pressure forces, which is where downforce, lift and most of the drag come from, and a poor judge of skin friction and separation from smooth surfaces. There is one mesh per case, not a mesh-independence study, so treat differences under about 10 % as within the method's reach.",
+  "The fans-off car had its intakes shut, which a stopped fan comes close to; the Nyx runs have no engine flow, so its drag is without the inlets' spillage or the jets' effect on the afterbody."
+ ],
+ [
+  "Run it yourself",
+  "The export, case generator and post-processing are in the model gallery's <code>aero/study</code> folder. With OpenFOAM installed:",
+  "<code>blender -b car.blend -P tools/export_stl.py -- cases/vx1/geometry.json runs/vx1/constant/triSurface</code><br><code>python3 tools/make_case.py cases/vx1/case.json runs/vx1</code><br><code>openfoam -c runs/vx1/Allrun</code>"
+ ]
+]

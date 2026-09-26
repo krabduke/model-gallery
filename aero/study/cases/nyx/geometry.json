@@ -1,0 +1,12 @@
+{"regions": {
+  "wings": {"groups": ["02 Flying surfaces"],
+            "skip": ["flaperon_act", "le_flap_act", "rudder_act", "canard_drive", "canard_spindle"]},
+  "body": {"groups": ["01 Airframe", "03 Intakes"],
+           "parts": ["canopy_glass", "canopy_frame", "canopy_rim", "gear_door_", "gear_leg_door",
+                     "gear_pivot_door", "bay_door_l", "bay_door_r", "ground_power_door",
+                     "engine_l_swivel_duct", "engine_r_swivel_duct",
+                     "engine_l_swivel_bearing", "engine_r_swivel_bearing",
+                     "engine_l_nozzle_static_ring", "engine_r_nozzle_static_ring",
+                     "engine_l_nozzle_ext_flaps", "engine_r_nozzle_ext_flaps"],
+           "skip": ["panel_seams", "static_wicks", "gear_door_act", "bay_door_act"]}},
+ "order": ["wings", "body"]}

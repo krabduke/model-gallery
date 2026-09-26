@@ -1,0 +1,34 @@
+{
+ "fan system": {
+  "CD.A": -0.345,
+  "CL.A": -0.284
+ },
+ "front wheel": {
+  "CD.A": 0.231,
+  "CL.A": 0.165
+ },
+ "rear wheel": {
+  "CD.A": 0.308,
+  "CL.A": 0.059
+ },
+ "front wing": {
+  "CD.A": 0.229,
+  "CL.A": -0.933
+ },
+ "rear wing": {
+  "CD.A": 0.463,
+  "CL.A": -0.998
+ },
+ "floor and diffuser": {
+  "CD.A": 0.158,
+  "CL.A": -4.714
+ },
+ "the rest": {
+  "CD.A": 0.224,
+  "CL.A": 0.011
+ },
+ "pressure total": {
+  "CD.A": 1.269,
+  "CL.A": -6.694
+ }
+}

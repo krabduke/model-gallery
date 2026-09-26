@@ -1,0 +1,10 @@
+{"regions": {
+  "wheel_front": {"parts": ["tyre_f", "rim_f", "wheelcover_f", "wheelnut_f"]},
+  "wheel_rear": {"parts": ["tyre_r", "rim_r", "wheelcover_r", "wheelnut_r"]},
+  "body": {"groups": ["01 Bodywork", "02 Floor and Diffuser", "03 Wings",
+                      "05 Suspension", "09 Aero Detail"],
+           "parts": ["helmet", "helmet_visor", "roll_hoop", "airbox",
+                     "fan_fairing", "fan_nozzle", "mirrors"],
+           "skip": ["hose_clips", "lt_pump_lead", "steering_column", "steering_rack",
+                    "dampers_", "heave_", "antiroll_", "torsion_", "rocker_"]}},
+ "order": ["wheel_front", "wheel_rear", "body"]}

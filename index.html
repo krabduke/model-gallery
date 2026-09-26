@@ -101,6 +101,19 @@
     font-weight:600;
   }
 
+  /* ---- the aero study: one band, linking out ---------------------------- */
+  .study{padding:48px 0; border-bottom:1px solid var(--line)}
+  .study a.band{
+    display:grid; grid-template-columns:1fr auto; gap:24px; align-items:center;
+    text-decoration:none; background:var(--bg-lift); border:1px solid var(--line);
+    padding:26px 28px; transition:border-color .16s ease;
+  }
+  .study a.band:hover{border-color:var(--air)}
+  .study h2{margin:0; font-size:22px; font-weight:650; letter-spacing:-.018em}
+  .study p{margin:8px 0 0; color:var(--ink-dim); font-size:14.5px; max-width:70ch}
+  .study .go{font-size:13px; font-weight:500; padding:8px 14px; background:var(--air); color:#101416; white-space:nowrap}
+  @media (max-width:900px){ .study a.band{grid-template-columns:1fr} }
+
   /* ---- method --------------------------------------------------------- */
   .method{padding:56px 0 40px}
   .method h2{margin:0 0 20px; font-size:20px; font-weight:600; letter-spacing:-.018em}
@@ -329,6 +342,20 @@
       </article>
 
     </div>
+  </div>
+</section>
+
+<section class="study">
+  <div class="wrap">
+    <a class="band" href="aero/">
+      <div>
+        <h2>The air, checked</h2>
+        <p>The VX-1 and the Nyx through OpenFOAM, set beside every aerodynamic number we published.
+        The car's fans work, better than claimed, but its floor lifts without them; the Nyx is as
+        unstable as designed, with more drag than assumed.</p>
+      </div>
+      <span class="go">Read the study</span>
+    </a>
   </div>
 </section>
 

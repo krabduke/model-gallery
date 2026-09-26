@@ -1,0 +1,477 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The air, checked</title>
+<meta name="description" content="The VX-1's downforce and drag and the Nyx's lift and stability, as our own tools claimed them and as OpenFOAM computes them on the built geometry.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2314181B'/%3E%3Cpath d='M4 20 C10 10 22 10 28 20' fill='none' stroke='%237C99A5' stroke-width='2'/%3E%3Cpath d='M4 25 H28' stroke='%23C0793C' stroke-width='2'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#14181B;
+    --bg-lift:#1B2125;
+    --line:#2B3338;
+    --ink:#D6DAD5;
+    --ink-dim:#8B949A;
+    --ink-faint:#6A7278;
+    --air:#7C99A5;
+    --ground:#C0793C;
+    --suction:#3A6FC2;
+    --pressure:#D9642C;
+    --hold:#9DB98A;
+    --miss:#E0A25A;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:Archivo,system-ui,-apple-system,"Segoe UI",sans-serif;
+    font-size:15.5px; line-height:1.6; -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit}
+  .wrap{max-width:1160px; margin:0 auto; padding:0 24px}
+  .prose{max-width:68ch}
+  .back{display:inline-block; margin-top:28px; font-size:13px; color:var(--ink-dim); text-decoration:none}
+  .back:hover{color:var(--ink)}
+
+  header{padding:40px 0 44px; border-bottom:1px solid var(--line)}
+  header h1{margin:0; font-size:clamp(32px, 5.4vw, 52px); font-weight:700; letter-spacing:-.03em; line-height:1.04}
+  header p{margin:18px 0 0; color:var(--ink-dim); font-size:17px}
+  header p b{color:var(--ink); font-weight:600}
+
+  section.vehicle{padding:60px 0; border-bottom:1px solid var(--line)}
+  .vehicle h2{margin:0; font-size:28px; font-weight:650; letter-spacing:-.022em}
+  .vehicle .kind{margin:2px 0 0; color:var(--tint); font-size:14px; font-weight:600}
+  .vehicle > .wrap > .prose p{color:var(--ink-dim); margin:14px 0 0}
+
+  /* the ledger: what we said, what the solver says */
+  .ledger{margin:34px 0 0; border-top:1px solid var(--line)}
+  .claim{
+    display:grid; grid-template-columns:minmax(180px, 1.3fr) 1fr 1fr minmax(220px, 1.4fr);
+    gap:6px 28px; padding:20px 0; border-bottom:1px solid var(--line); align-items:start;
+  }
+  .claim .what{font-weight:600; font-size:16px}
+  .claim .src{color:var(--ink-faint); font-size:13px; margin-top:2px}
+  .claim .num{font-variant-numeric:tabular-nums}
+  .claim .num .v{font-size:27px; font-weight:600; letter-spacing:-.01em; line-height:1.15}
+  .claim .num .v small{font-size:14px; color:var(--ink-dim); font-weight:500; margin-left:3px}
+  .claim .num .l{color:var(--ink-faint); font-size:12.5px}
+  .claim .num.cfd .v{color:var(--tint)}
+  .claim .num .sd{color:var(--ink-faint); font-size:12.5px}
+  .claim .verdict{font-size:15px}
+  .claim .verdict b{display:block; font-size:17px; font-weight:650; letter-spacing:-.01em}
+  .claim .verdict.hold b{color:var(--hold)}
+  .claim .verdict.miss b{color:var(--miss)}
+  .claim .verdict span{color:var(--ink-dim); font-size:13.5px}
+  .claim .bar{grid-column:2 / 4; height:6px; position:relative; margin-top:6px}
+  .claim .bar i{position:absolute; top:0; height:6px; border-radius:1px}
+  .claim .bar .said{background:var(--ink-faint)}
+  .claim .bar .got{background:var(--tint); top:8px}
+  .pending{color:var(--ink-faint); font-style:italic}
+
+  /* the pressure map */
+  .figure{margin:40px 0 0; display:grid; grid-template-columns:1fr 260px; gap:0;
+          border:1px solid var(--line); background:#0F1315}
+  .figure .stage{position:relative; min-height:460px}
+  .figure canvas{display:block; width:100%; height:100%; position:absolute; inset:0; touch-action:none}
+  .figure aside{border-left:1px solid var(--line); padding:20px 18px; font-size:13.5px; color:var(--ink-dim)}
+  .figure aside h3{margin:0 0 8px; color:var(--ink); font-size:14px; font-weight:600}
+  .figure aside p{margin:0 0 14px}
+  .scale{height:10px; margin:6px 0 4px; border-radius:1px}
+  .scale.cp{background:linear-gradient(90deg,#21479E,#669ED9 35%,#E6E8E1 50%,#F29E54 70%,#B82E1A)}
+  .scale.spd{background:linear-gradient(90deg,#0F1429,#346BAD 38%,#CCDBE0 65%,#FAD680 77%,#ED7838)}
+  .ticks{display:flex; justify-content:space-between; font-size:11.5px; color:var(--ink-faint);
+         font-variant-numeric:tabular-nums}
+  .figure label{display:flex; gap:8px; align-items:center; margin:6px 0; color:var(--ink); cursor:pointer}
+  .figure input{accent-color:var(--tint)}
+  .figure .load{position:absolute; inset:0; display:grid; place-items:center; color:var(--ink-faint); font-size:13px}
+  .figcap{margin:10px 0 0; color:var(--ink-faint); font-size:13px}
+  .views{display:flex; gap:6px; margin:0 0 16px}
+  .views button{font:inherit; font-size:12.5px; color:var(--ink); background:transparent; border:1px solid var(--line);
+                padding:5px 10px; cursor:pointer}
+  .views button:hover{border-color:var(--tint)}
+
+  /* charts */
+  .charts{margin:40px 0 0; display:grid; grid-template-columns:1fr 1fr; gap:28px}
+  .chart h4{margin:0 0 6px; font-size:14px; font-weight:600}
+  .chart p{margin:6px 0 0; color:var(--ink-faint); font-size:13px}
+  .chart svg{display:block; width:100%; height:auto; background:#0F1315; border:1px solid var(--line)}
+  .chart svg text{fill:var(--ink-faint); font-size:11px; font-family:inherit}
+  .chart svg .axis{stroke:#34404A; stroke-width:1}
+  .chart svg .grid{stroke:#20282D; stroke-width:1}
+
+  .notes{margin:34px 0 0; display:grid; grid-template-columns:repeat(3, 1fr); gap:26px}
+  .notes h4{margin:0 0 6px; font-size:14px; font-weight:600}
+  .notes p{margin:0; color:var(--ink-dim); font-size:14px}
+
+  .method{padding:60px 0 44px}
+  .method h2{margin:0 0 18px; font-size:22px; font-weight:650; letter-spacing:-.018em}
+  .method .cols{display:grid; grid-template-columns:repeat(3, 1fr); gap:34px}
+  .method h4{margin:0 0 7px; font-size:14px; font-weight:600}
+  .method p{margin:0 0 10px; color:var(--ink-dim); font-size:14px}
+  code{background:#222A2E; padding:1px 5px; font-size:12.5px; font-family:ui-monospace, SFMono-Regular, Menlo, monospace}
+  pre{background:#11161A; border:1px solid var(--line); padding:14px 16px; overflow-x:auto; font-size:12.5px;
+      font-family:ui-monospace, SFMono-Regular, Menlo, monospace; color:var(--ink-dim)}
+
+  footer{padding:30px 0 56px; border-top:1px solid var(--line); color:var(--ink-faint); font-size:13px}
+  footer a{color:var(--ink-dim)}
+  :focus-visible{outline:2px solid var(--air); outline-offset:2px}
+
+  @media (max-width:900px){
+    .claim{grid-template-columns:1fr 1fr}
+    .claim .verdict{grid-column:1 / -1}
+    .claim .bar{grid-column:1 / -1}
+    .figure{grid-template-columns:1fr}
+    .figure aside{border-left:0; border-top:1px solid var(--line)}
+    .figure .stage{min-height:340px}
+    .charts, .notes, .method .cols{grid-template-columns:1fr}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition-duration:.01ms !important}}
+</style>
+</head>
+<body>
+
+<div class="wrap"><a class="back" href="../">Back to the models</a></div>
+
+<header>
+  <div class="wrap">
+    <h1>The air, checked</h1>
+    <div class="prose">
+      <p>The VX-1's downforce and drag were targets, written into its specification and never
+      computed. The Nyx's lift and stability came from our own vortex-lattice code and a textbook
+      drag polar. Here both go through <b>OpenFOAM</b>, the open-source CFD suite used across
+      industry and research, on the geometry exactly as it is built, and every number we
+      published is set beside what the solver says.</p>
+    </div>
+  </div>
+</header>
+
+<section class="vehicle" id="vx1" style="--tint:var(--ground)">
+  <div class="wrap">
+    <h2>VX-1 Vortex</h2>
+    <p class="kind">The ground-effect fan car, at 180 km/h</p>
+    <div class="prose" id="vx1-intro"><p class="pending">The run is still going; its numbers appear here when it finishes.</p></div>
+    <div class="ledger" id="vx1-ledger"></div>
+    <div class="figure" data-model="data/vx1_cp.glb" data-view="car">
+      <div class="stage"><canvas></canvas><div class="load">Loading the pressure map</div></div>
+      <aside>
+        <h3>Pressure on the car</h3>
+        <p>The pressure coefficient on every surface: blue is suction, which is where the downforce
+        comes from, orange is where the air piles up. Drag to turn it.</p>
+        <div class="views"><button type="button" data-side="1">From above</button><button type="button" data-side="-1">From below</button></div>
+        <div class="scale cp"></div><div class="ticks"><span>-1.5</span><span>0</span><span>+1</span></div>
+        <div class="slices"></div>
+      </aside>
+    </div>
+    <p class="figcap" id="vx1-cap"></p>
+    <div class="charts">
+      <div class="chart" id="vx1-conv"><h4>Converging</h4></div>
+      <div class="chart" id="vx1-split"><h4>Where the downforce acts</h4></div>
+    </div>
+    <div class="notes" id="vx1-notes"></div>
+  </div>
+</section>
+
+<section class="vehicle" id="nyx" style="--tint:var(--air)">
+  <div class="wrap">
+    <h2>Nyx</h2>
+    <p class="kind">The canard-delta fighter, clean, powered off</p>
+    <div class="prose" id="nyx-intro"><p class="pending">The runs are still going; their numbers appear here when they finish.</p></div>
+    <div class="ledger" id="nyx-ledger"></div>
+    <div class="figure" data-model="data/nyx_cp.glb" data-view="jet">
+      <div class="stage"><canvas></canvas><div class="load">Loading the pressure map</div></div>
+      <aside>
+        <h3>Pressure on the aircraft</h3>
+        <p>The pressure coefficient at the highest angle of attack run. The canards' and the wing's
+        leading edges carry the deepest suction. Drag to turn it.</p>
+        <div class="views"><button type="button" data-side="1">From above</button><button type="button" data-side="-1">From below</button></div>
+        <div class="scale cp"></div><div class="ticks"><span>-1.5</span><span>0</span><span>+1</span></div>
+        <div class="slices"></div>
+      </aside>
+    </div>
+    <p class="figcap" id="nyx-cap"></p>
+    <div class="charts">
+      <div class="chart" id="nyx-cl"><h4>Lift against angle of attack</h4></div>
+      <div class="chart" id="nyx-cm"><h4>Pitching moment about the CG</h4></div>
+    </div>
+    <div class="notes" id="nyx-notes"></div>
+  </div>
+</section>
+
+<section class="method">
+  <div class="wrap">
+    <h2>How it was run</h2>
+    <div class="cols" id="method"></div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">Run on a laptop with OpenFOAM v2606. The cases and scripts are in
+    <a href="https://github.com/krabduke/model-gallery/tree/main/aero/study">aero/study</a>.</div>
+</footer>
+
+<script type="importmap">
+{"imports":{
+  "three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
+  "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
+}}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
+import {DRACOLoader} from 'three/addons/loaders/DRACOLoader.js';
+
+const $ = (s, r = document) => r.querySelector(s);
+const esc = (s) => String(s).replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
+const fmt = (v, d = 2) => v.toLocaleString(undefined, {minimumFractionDigits: d, maximumFractionDigits: d});
+const load = async (p) => { try { const r = await fetch(p, {cache: 'no-cache'}); return r.ok ? r.json() : null; } catch (e) { return null; } };
+
+/* ---------------- the ledger ---------------- */
+function verdict(said, got, {unit = '', points = false, higherIs = 'better', tol = 0.10} = {}){
+  if (points) {
+    const d = got - said;
+    if (Math.abs(d) <= 2) return ['hold', 'Holds up', `within ${fmt(Math.abs(d), 1)} points`];
+    return ['miss', `${fmt(Math.abs(d), 1)} points ${d > 0 ? 'further forward' : 'further aft'}`, 'than we said'];
+  }
+  const r = got / said - 1;
+  if (Math.abs(r) <= tol) return ['hold', 'Holds up', `within ${fmt(Math.abs(r) * 100, 0)} %`];
+  const optimistic = higherIs === 'better' ? r < 0 : r > 0;
+  return ['miss', `${optimistic ? 'Optimistic' : 'Conservative'} by ${fmt(Math.abs(r) * 100, 0)} %`,
+          optimistic ? 'we claimed better than the air gives' : 'the air gives more than we claimed'];
+}
+function ledger(el, rows){
+  el.innerHTML = rows.map(r => {
+    const [cls, head, tail] = r.verdict || ['', '', ''];
+    const max = Math.max(Math.abs(r.said), Math.abs(r.got)) || 1;
+    const w = (v) => `${(100 * Math.abs(v) / max).toFixed(1)}%`;
+    return `<div class="claim">
+      <div><div class="what">${esc(r.what)}</div><div class="src">${esc(r.src)}</div></div>
+      <div class="num"><div class="l">We said</div><div class="v">${r.saidText}</div></div>
+      <div class="num cfd"><div class="l">OpenFOAM</div><div class="v">${r.gotText}</div>
+        ${r.sd ? `<div class="sd">${esc(r.sd)}</div>` : ''}</div>
+      <div class="verdict ${cls}"><b>${esc(head)}</b><span>${esc(tail)}</span>${r.note ? `<br><span>${esc(r.note)}</span>` : ''}</div>
+      ${r.bar === false || r.said * r.got < 0 ? '' : `<div class="bar" aria-hidden="true"><i class="said" style="width:${w(r.said)}"></i><i class="got" style="width:${w(r.got)}"></i></div>`}
+    </div>`;
+  }).join('');
+}
+
+/* ---------------- charts ---------------- */
+function chart(el, {series, xlab, ylab, xr, yr, w = 520, h = 300, zero = true}){
+  const L = 50, R = 14, T = 14, B = 38;
+  const X = (x) => L + (x - xr[0]) / (xr[1] - xr[0]) * (w - L - R);
+  const Y = (y) => h - B - (y - yr[0]) / (yr[1] - yr[0]) * (h - T - B);
+  const nice = (a, b, n) => { const s = Math.pow(10, Math.floor(Math.log10((b - a) / n))); const st = [1, 2, 5, 10].map(k => k * s).find(k => (b - a) / k <= n); const out = []; for (let v = Math.ceil(a / st) * st; v <= b + 1e-9; v += st) out.push(+v.toFixed(6)); return out; };
+  let s = '';
+  for (const v of nice(yr[0], yr[1], 5)) s += `<line class="grid" x1="${L}" x2="${w - R}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${L - 6}" y="${Y(v) + 4}" text-anchor="end">${v}</text>`;
+  for (const v of nice(xr[0], xr[1], 6)) s += `<text x="${X(v)}" y="${h - B + 16}" text-anchor="middle">${v}</text>`;
+  if (zero && yr[0] < 0 && yr[1] > 0) s += `<line class="axis" x1="${L}" x2="${w - R}" y1="${Y(0)}" y2="${Y(0)}"/>`;
+  s += `<line class="axis" x1="${L}" x2="${L}" y1="${T}" y2="${h - B}"/><line class="axis" x1="${L}" x2="${w - R}" y1="${h - B}" y2="${h - B}"/>`;
+  s += `<text x="${(L + w - R) / 2}" y="${h - 6}" text-anchor="middle">${esc(xlab)}</text>`;
+  s += `<text x="14" y="${(T + h - B) / 2}" text-anchor="middle" transform="rotate(-90 14 ${(T + h - B) / 2})">${esc(ylab)}</text>`;
+  let ly = T + 6;
+  for (const sr of series) {
+    const pts = sr.x.map((x, i) => `${X(x).toFixed(1)},${Y(sr.y[i]).toFixed(1)}`);
+    if (sr.line !== false) s += `<polyline points="${pts.join(' ')}" fill="none" stroke="${sr.color}" stroke-width="${sr.width || 2}" ${sr.dash ? `stroke-dasharray="${sr.dash}"` : ''}/>`;
+    if (sr.dots) for (const p of pts) { const [a, b] = p.split(','); s += `<circle cx="${a}" cy="${b}" r="4.5" fill="${sr.color}"/>`; }
+    s += `<line x1="${w - R - 150}" x2="${w - R - 130}" y1="${ly}" y2="${ly}" stroke="${sr.color}" stroke-width="2.5" ${sr.dash ? `stroke-dasharray="${sr.dash}"` : ''}/><text x="${w - R - 124}" y="${ly + 4}">${esc(sr.name)}</text>`;
+    ly += 16;
+  }
+  el.insertAdjacentHTML('beforeend', `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="${esc(ylab)} against ${esc(xlab)}">${s}</svg>`);
+}
+
+/* ---------------- the pressure maps ---------------- */
+const draco = new DRACOLoader();
+draco.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/libs/draco/gltf/');
+const loader = new GLTFLoader(); loader.setDRACOLoader(draco);
+function viewer(fig){
+  const canvas = $('canvas', fig), stage = $('.stage', fig);
+  const renderer = new THREE.WebGLRenderer({canvas, antialias: true});
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x0F1315);
+  scene.add(new THREE.HemisphereLight(0xffffff, 0x404850, 1.15));
+  const sun = new THREE.DirectionalLight(0xffffff, 1.1); sun.position.set(-3, 5, 4); scene.add(sun);
+  const camera = new THREE.PerspectiveCamera(32, 1, 0.05, 200);
+  const controls = new OrbitControls(camera, canvas);
+  controls.enableDamping = true;
+  const size = () => { const w = stage.clientWidth, h = stage.clientHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); };
+  new ResizeObserver(size).observe(stage); size();
+  let ready = false;
+  loader.load(fig.dataset.model, (g) => {
+    const root = g.scene;
+    const slices = [];
+    root.traverse(o => {
+      if (!o.isMesh) return;
+      const slice = !/vehicle/.test(o.name) && !/vehicle/.test(o.parent?.name || '');
+      o.material = new THREE.MeshLambertMaterial({vertexColors: true, side: THREE.DoubleSide,
+                                                  transparent: slice, opacity: slice ? 0.92 : 1});
+      if (slice) { o.visible = false; slices.push(o); }
+    });
+    scene.add(root);
+    const box = new THREE.Box3().setFromObject(root.getObjectByName('vehicle') || root);
+    const c = box.getCenter(new THREE.Vector3()), s = box.getSize(new THREE.Vector3()).length();
+    controls.target.copy(c);
+    const dir = fig.dataset.view === 'car' ? new THREE.Vector3(-0.55, 0.38, 0.75) : new THREE.Vector3(-0.6, 0.55, 0.6);
+    camera.position.copy(c).addScaledVector(dir.normalize(), s * 1.15);
+    for (const b of fig.querySelectorAll('.views button')) b.addEventListener('click', () => {
+      const d = dir.clone(); d.y = Math.abs(d.y) * +b.dataset.side;
+      camera.position.copy(c).addScaledVector(d.normalize(), s * 1.15);
+      controls.target.copy(c);
+    });
+    const names = {centre: 'Speed on the centreline', under: 'Speed under the floor', wing: 'Speed across the wing'};
+    $('.slices', fig).innerHTML = slices.length ? '<h3 style="margin-top:18px">Flow slices</h3><p>Speed as a share of the free stream.</p><div class="scale spd"></div><div class="ticks"><span>0</span><span>1</span><span>1.3</span></div>' +
+      slices.map((o, i) => `<label><input type="checkbox" data-i="${i}"> ${esc(names[o.name] || o.name)}</label>`).join('') : '';
+    for (const box of fig.querySelectorAll('.slices input')) box.addEventListener('change', (e) => { slices[+e.target.dataset.i].visible = e.target.checked; });
+    $('.load', fig).remove();
+    ready = true;
+  }, undefined, () => { $('.load', fig).textContent = 'The pressure map appears when the run has finished.'; });
+  renderer.setAnimationLoop(() => { if (ready) { controls.update(); renderer.render(scene, camera); } });
+}
+for (const fig of document.querySelectorAll('.figure')) viewer(fig);
+
+/* ---------------- the numbers ---------------- */
+const vx1 = await load('data/vx1.json');
+if (vx1 && vx1.results) {
+  const r = vx1.results, said = vx1.claims, ro = vx1.regions_off || {};
+  const down = (v) => -v;                               // downforce is negative lift
+  const cla = down(r.Cl.mean), cda = r.Cd.mean;
+  const wings = ro['front wing'] ? down(ro['front wing']['CL.A'] + ro['rear wing']['CL.A']) : null;
+  const floor = ro['floor and diffuser'] ? down(ro['floor and diffuser']['CL.A']) : null;
+  const sign = (s, g, what) => (s * g < 0 ? ['miss', 'The wrong way round', `it ${what}`] : null);
+  const q = 0.5 * 1.225 * vx1.U * vx1.U;
+  const rows = [
+    {what: 'Downforce, fans off', src: said.cla_src, said: said.cla, got: cla,
+     saidText: `${fmt(said.cla)}<small>m² CL·A</small>`, gotText: `${fmt(cla)}<small>m²</small>`,
+     sd: `± ${fmt(2 * r.Cl.sd)} over the last ${r.window} iterations`,
+     verdict: sign(said.cla, cla, 'lifts the car, by ' + fmt(-cla * q / 9.81, 0) + ' kg at 180 km/h') || verdict(said.cla, cla)},
+  ];
+  if (wings != null) rows.push(
+    {what: 'from the wings', src: 'front and rear wings together', said: said.wings, got: wings,
+     saidText: `${fmt(said.wings)}<small>m²</small>`, gotText: `${fmt(wings)}<small>m²</small>`,
+     verdict: verdict(said.wings, wings)},
+    {what: 'from the floor', src: 'the sealed floor, its tunnels and diffuser', said: said.floor, got: floor,
+     saidText: `${fmt(said.floor)}<small>m²</small>`, gotText: `${fmt(floor)}<small>m²</small>`,
+     verdict: sign(said.floor, floor, 'lifts: with the fans off nothing draws the air out of the plenum') || verdict(said.floor, floor)});
+  rows.push(
+    {what: 'Drag', src: said.cda_src, said: said.cda, got: cda,
+     saidText: `${fmt(said.cda)}<small>m² CD·A</small>`, gotText: `${fmt(cda)}<small>m²</small>`,
+     sd: `± ${fmt(2 * r.Cd.sd)}`, verdict: verdict(said.cda, cda, {higherIs: 'worse'})});
+  if (vx1.fans) {
+    const f = vx1.fans, cla_on = down(f.Cl.mean);
+    rows.push({what: 'What the fans add', src: said.fan_src, said: said.fan_kg, got: vx1.fan_kg,
+      saidText: `${fmt(said.fan_kg, 0)}<small>kg</small>`, gotText: `${fmt(vx1.fan_kg, 0)}<small>kg</small>`,
+      sd: 'the difference between the runs, fans on and off, at 180 km/h', verdict: verdict(said.fan_kg, vx1.fan_kg)});
+    if (vx1.total_said_kg) rows.push({what: 'All of it, fans on', src: 'wings and floor at 180 km/h plus the fans, as the lap simulation adds them',
+      said: vx1.total_said_kg, got: vx1.total_got_kg,
+      saidText: `${fmt(vx1.total_said_kg, 0)}<small>kg</small>`, gotText: `${fmt(vx1.total_got_kg, 0)}<small>kg</small>`,
+      sd: `± ${fmt(2 * f.Cl.sd * q / 9.81, 0)} kg`, verdict: verdict(vx1.total_said_kg, vx1.total_got_kg)});
+    const front = 100 * f['Cl(f)'].mean / f.Cl.mean;
+    rows.push({what: 'Balance, fans on', src: said.bal_src, said: said.balance, got: front, bar: false,
+      saidText: `${fmt(said.balance, 1)}<small>% front</small>`, gotText: cla_on > 0 ? `${fmt(front, 1)}<small>% front</small>` : 'net lift',
+      verdict: cla_on > 0 ? verdict(said.balance, front, {points: true}) : ['miss', 'No balance to speak of', 'the car makes net lift']});
+  } else {
+    rows.push({what: 'What the fans add', src: said.fan_src, said: said.fan_kg, got: 0, bar: false,
+      saidText: `${fmt(said.fan_kg, 0)}<small>kg</small>`, gotText: '<span class="pending">running</span>',
+      verdict: ['', 'Still running', 'the fans-on case is being solved']});
+  }
+  ledger($('#vx1-ledger'), rows);
+  $('#vx1-intro').innerHTML = vx1.intro || '';
+  $('#vx1-cap').textContent = vx1.caption || '';
+  $('#vx1-notes').innerHTML = (vx1.notes || []).map(n => `<div><h4>${esc(n[0])}</h4><p>${esc(n[1])}</p></div>`).join('');
+  const hi = r.history;
+  const series = [{name: 'downforce, fans off', x: hi.it, y: hi.Cl.map(v => -v), color: '#C0793C'},
+                  {name: 'drag, fans off', x: hi.it, y: hi.Cd, color: '#8B949A'}];
+  if (vx1.fans) {
+    const h2 = vx1.fans.history;
+    series.push({name: 'downforce, fans on', x: h2.it, y: h2.Cl.map(v => -v), color: '#E6C9A6'},
+                {name: 'drag, fans on', x: h2.it, y: h2.Cd, color: '#5E676D'});
+  }
+  const ys = series.flatMap(sr => sr.y);
+  chart($('#vx1-conv'), {series, xlab: 'iteration', ylab: 'm²', xr: [0, Math.max(...series.flatMap(sr => sr.x))],
+    yr: [Math.floor(Math.min(...ys, 0) - 0.5), Math.ceil(Math.max(...ys) + 0.5)]});
+  $('#vx1-conv').insertAdjacentHTML('beforeend', `<p>Both runs, whole car, against the solver's iterations: a negative downforce is lift. The ledger takes the mean of the last ${r.window}.</p>`);
+  // where it comes from: downforce by region, the claims marked
+  // the claims are for both wings together and for the floor: chart those
+  const group = (R) => R && {
+    'both wings': {'CL.A': R['front wing']['CL.A'] + R['rear wing']['CL.A']},
+    'floor and diffuser': R['floor and diffuser'],
+    'wheels': {'CL.A': R['front wheel']['CL.A'] + R['rear wheel']['CL.A']},
+    'fans, intakes and nozzles': R['fan system'] || {'CL.A': 0},
+    'the rest': R['the rest']};
+  const names = ['both wings', 'floor and diffuser', 'fans, intakes and nozzles', 'wheels', 'the rest'];
+  const ro_ = ro;
+  const ron = group(vx1.regions_on || null);
+  {
+  const ro = group(ro_);
+  const W = 560, H = 58 + names.length * 34, L0 = 168, x0 = L0 + 8 + (W - L0 - 16) / 2;
+  const vals = names.flatMap(n => [ro[n] ? -ro[n]['CL.A'] : 0, ron && ron[n] ? -ron[n]['CL.A'] : 0]);
+  const lim = Math.max(said.floor + 0.3, ...vals.map(Math.abs)) * 1.05;
+  const half = (W - L0 - 16) / 2;
+  const XN = (v) => x0 + v / lim * (half - 8);
+  let sv = `<line class="axis" x1="${x0}" x2="${x0}" y1="14" y2="${H - 26}"/>`;
+  names.forEach((n, i) => {
+    const y = 24 + i * 34, v = ro[n] ? -ro[n]['CL.A'] : 0;
+    sv += `<text x="${L0 - 8}" y="${y + 9}" text-anchor="end">${n}</text>`;
+    const a = XN(Math.min(0, v)), b = XN(Math.max(0, v));
+    sv += `<rect x="${Math.min(a, b)}" y="${y}" width="${Math.abs(b - a)}" height="10" fill="#C0793C"/>`;
+    if (ron && ron[n]) { const w2 = -ron[n]['CL.A'], c = XN(Math.min(0, w2)), d = XN(Math.max(0, w2));
+      sv += `<rect x="${Math.min(c, d)}" y="${y + 12}" width="${Math.abs(d - c)}" height="6" fill="#E6C9A6"/>`; }
+  });
+  const mark = (v, i0, i1, label) => { const x = XN(v); sv += `<line x1="${x}" x2="${x}" y1="${20 + i0 * 34}" y2="${38 + i1 * 34}" stroke="#D6DAD5" stroke-dasharray="3 3"/><text x="${x - 4}" y="${16 + i0 * 34}" text-anchor="end">${label}</text>`; };
+  mark(said.wings, 0, 0, `we said ${said.wings}`);
+  mark(said.floor, 1, 1, `we said ${said.floor}`);
+  sv += `<text x="${x0 - 6}" y="${H - 8}" text-anchor="end">lift</text><text x="${x0 + 6}" y="${H - 8}">downforce, m² CL·A</text>`;
+  $('#vx1-split').innerHTML = `<h4>Where it comes from</h4><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Downforce by region">${sv}</svg>` +
+    `<p>Downforce by part of the car, fans off${ron ? ' (and fans on, the pale bars)' : ''}. The dashed lines are what the spec gave the wings between them and the floor.</p>`;
+  }
+}
+
+const nyx = await load('data/nyx.json');
+if (nyx && nyx.derived) {
+  const said = nyx.claims, got = nyx.derived;
+  ledger($('#nyx-ledger'), [
+    {what: 'Lift slope', src: said.cla_src, said: said.cla, got: got.cla,
+     saidText: `${fmt(said.cla)}<small>per rad</small>`, gotText: `${fmt(got.cla)}<small>per rad</small>`,
+     verdict: verdict(said.cla, got.cla)},
+    {what: 'Static margin', src: said.sm_src, said: said.sm, got: got.sm, bar: false,
+     saidText: `${fmt(said.sm, 1)}<small>% MAC</small>`, gotText: `${fmt(got.sm, 1)}<small>% MAC</small>`,
+     verdict: got.sm < 0 ? (Math.abs(got.sm - said.sm) <= 2 ? ['hold', 'Unstable, as designed', `within ${fmt(Math.abs(got.sm - said.sm), 1)} points of the claim`]
+                                                             : ['miss', `Unstable, but by ${fmt(Math.abs(got.sm), 1)} %`, `not the ${fmt(Math.abs(said.sm), 1)} % we said`])
+                         : ['miss', 'Stable, not unstable', 'the relaxed-stability claim does not hold']},
+    {what: 'Zero-lift drag', src: said.cd0_src, said: said.cd0, got: got.cd0,
+     saidText: `${fmt(said.cd0, 4)}<small>CD0</small>`, gotText: `${fmt(got.cd0, 4)}<small>CD0</small>`,
+     verdict: verdict(said.cd0, got.cd0, {higherIs: 'worse'}), note: nyx.cd0_note},
+    {what: 'Drag due to lift', src: said.K_src, said: said.K, got: got.K,
+     saidText: `${fmt(said.K, 3)}<small>K</small>`, gotText: `${fmt(got.K, 3)}<small>K</small>`,
+     verdict: verdict(said.K, got.K, {higherIs: 'worse'})},
+    {what: 'Best sustained turn', src: 'sea level, through our energy-manoeuvrability sums with each drag polar',
+     said: nyx.turn.ours, got: nyx.turn.cfd,
+     saidText: `${fmt(nyx.turn.ours, 1)}<small>°/s at ${fmt(nyx.turn.ours_g, 1)} g</small>`,
+     gotText: `${fmt(nyx.turn.cfd, 1)}<small>°/s at ${fmt(nyx.turn.cfd_g, 1)} g</small>`,
+     verdict: verdict(nyx.turn.ours, nyx.turn.cfd)},
+  ]);
+  $('#nyx-intro').innerHTML = nyx.intro || '';
+  $('#nyx-cap').textContent = nyx.caption || '';
+  $('#nyx-notes').innerHTML = (nyx.notes || []).map(n => `<div><h4>${esc(n[0])}</h4><p>${esc(n[1])}</p></div>`).join('');
+  const a = nyx.alpha, amax = Math.max(...a) + 2;
+  const theory = (k) => { const xs = [], ys = []; for (let d = 0; d <= amax; d += 0.5) { xs.push(d); ys.push(k(d * Math.PI / 180)); } return [xs, ys]; };
+  const [tx, ty] = theory(r => { const s = Math.sin(r), c = Math.cos(r); return said.cla * s * c * c + Math.PI * c * s * s; });
+  const [lx, ly] = theory(r => said.cla * r);
+  chart($('#nyx-cl'), {series: [{name: 'OpenFOAM', x: a, y: nyx.CL, color: '#7C99A5', dots: true},
+                                {name: 'Our VLM, linear', x: lx, y: ly, color: '#6A7278', dash: '4 4', width: 1.5},
+                                {name: 'Plus vortex lift', x: tx, y: ty, color: '#8B949A', width: 1.5}],
+    xlab: 'angle of attack, degrees', ylab: 'CL', xr: [0, amax], yr: [Math.min(0, ...nyx.CL) - 0.05, Math.max(...nyx.CL, ...ty) + 0.1]});
+  chart($('#nyx-cm'), {series: [{name: 'OpenFOAM', x: nyx.CL, y: nyx.Cm, color: '#7C99A5', dots: true},
+                                {name: 'Our VLM', x: [0, Math.max(...nyx.CL)], y: [nyx.Cm[0], nyx.Cm[0] - said.sm / 100 * Math.max(...nyx.CL)], color: '#6A7278', dash: '4 4'}],
+    xlab: 'CL', ylab: 'Cm about the CG', xr: [Math.min(0, ...nyx.CL), Math.max(...nyx.CL) * 1.05], yr: [Math.min(...nyx.Cm, 0) - 0.02, Math.max(...nyx.Cm, 0) + 0.02]});
+  $('#nyx-cm').insertAdjacentHTML('beforeend', '<p>The slope is the static margin, with its sign turned: rising with lift, the nose wants to come up, which is what unstable means.</p>');
+}
+
+const meth = await load('data/method.json');
+if (meth) $('#method').innerHTML = meth.map(c => `<div><h4>${esc(c[0])}</h4>${c.slice(1).map(p => `<p>${p}</p>`).join('')}</div>`).join('');
+</script>
+</body>
+</html>

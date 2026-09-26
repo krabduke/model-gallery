@@ -1,0 +1,59 @@
+{
+ "claims": {
+  "cla": 2.8674110188920605,
+  "sm": -4.798511014614712,
+  "cd0": 0.018,
+  "x_np": 8468.858463415248,
+  "x_cg": 8763.135092219129,
+  "cla_src": "our vortex-lattice solve, canards and wing",
+  "sm_src": "the same solve's neutral point against the combat CG",
+  "cd0_src": "assumed: a clean stealth fighter, 0.016 to 0.022",
+  "K": 0.17307905590394287,
+  "K_src": "assumed: an Oswald factor of 0.72 on aspect ratio 2.55"
+ },
+ "alpha": [
+  0.0,
+  8.0
+ ],
+ "CL": [
+  0.02553,
+  0.44182
+ ],
+ "CD": [
+  0.02216,
+  0.0654
+ ],
+ "Cm": [
+  -0.00436,
+  0.02374
+ ],
+ "derived": {
+  "cla": 2.98145750668763,
+  "sm": -6.750102092291431,
+  "cd0": 0.02216,
+  "K": 0.22225291192498747
+ },
+ "turn": {
+  "ours": 25.5,
+  "ours_g": 5.29,
+  "cfd": 22.3,
+  "cfd_g": 4.65
+ },
+ "intro": "<p>Two runs of the aircraft as built, gear up and doors shut, at 100 m/s (Mach 0.29): at no angle of attack, and at 8 degrees, started from the first. Two angles are enough for what decides how it flies: how fast lift grows with angle, whether the nose-up moment grows with it (which is what unstable means), and the drag.</p>",
+ "caption": "At 8 degrees. The canards' and the wing's leading edges carry the deepest suction; the capped intakes and nozzles are the orange faces.",
+ "cd0_note": "part of it is the blunt base of the capped nozzles, as on any powered-off model",
+ "notes": [
+  [
+   "Unstable, and a little more so",
+   "The pitching moment rises with lift: a static margin of -6.8 % of the chord, against the -4.8 % our vortex-lattice code gave. That code sees only the lifting surfaces; the fuselage ahead of the CG adds its own nose-up moment, the usual difference. More instability asks more of the flight control computers."
+  ],
+  [
+   "The lift holds",
+   "Lift grows at 2.98 per radian, 4 % above the vortex-lattice figure: the canard and wing were modelled right, and the instantaneous turn rate, which lift sets, stands."
+  ],
+  [
+   "Less sustained turn",
+   "Drag is higher on both counts: 0.0222 at zero lift, and 28 % more drag due to lift than the assumed Oswald factor gives. Through the same energy-manoeuvrability sums the best sustained turn at sea level falls from 25.5 to 22.3 degrees a second."
+  ]
+ ]
+}
