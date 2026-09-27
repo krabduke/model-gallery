@@ -356,9 +356,9 @@ const M = {
     src: 'https://github.com/krabduke/aero-hypercar', render: 'img/vx1.jpg',
     line: 'A ground-effect fan car, built to beat Formula 1 on a Formula 1 circuit.',
     does: 'Put it in the wind tunnel, switch the fans, cut away a side, or take it apart in the garage.',
-    figs: [['Mass', '700 kg, against F1’s 798'], ['Fan downforce', '<s>650</s>1,073 kg at 180 km/h'],
-           ['Drag area, fans running', '<s>1.28</s>1.38 m²'], ['Length by width', '5.1 by 2.0 m'],
-           ['Parts', '287, with 45 checks passing']]},
+    figs: [['Mass', '700 kg, against F1’s 798'], ['Fan downforce', '<s>650</s>811 kg, at any speed'],
+           ['Grip at 80 km/h', '3.37 g, against F1’s 2.03'], ['A lap against F1', '<s>10.7</s>1.5 s quicker'],
+           ['Parts', '287, with 44 checks passing']]},
 };
 const ORDER = ['nyx', 'aether', 'vx1', 'v8'];
 const names = {plan: 'Plan', elev: 'Side elevation', end: 'End view'};
@@ -469,8 +469,8 @@ for (const v of document.querySelectorAll('.view')) {
 /* ---------------- the check: the red pen ---------------- */
 const R = [
   ['VX-1 downforce, fans stopped', 'the floor, sealed for the fans, lifts without them', '4.55', '−0.88', 'm²'],
-  ['What the VX-1’s fans add', 'at 180 km/h, once their intakes could breathe', '650', '1,073', 'kg'],
-  ['VX-1 downforce on the front axle', 'so the wings were retrimmed', '44.5', '31.7', '% front'],
+  ['VX-1 fan downforce', 'once their intakes could breathe; it holds at any speed', '650', '811', 'kg'],
+  ['VX-1 lap against Formula 1', 'quicker below 195 km/h, slower above', '10.7', '1.5', 's quicker'],
   ['Nyx sustained turn', 'more drag than assumed, on both counts', '25.5', '22.4', '°/s'],
   ['Nyx lift slope', 'the vortex-lattice figure holds', '2.87', '2.98', 'per rad', true],
 ];

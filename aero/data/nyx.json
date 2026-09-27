@@ -1,14 +1,12 @@
 {
  "claims": {
   "cla": 2.8674110188920605,
-  "sm": -4.798511014614712,
+  "sm": -4.8,
   "cd0": 0.018,
-  "x_np": 8468.858463415248,
-  "x_cg": 8763.135092219129,
   "cla_src": "our vortex-lattice solve, canards and wing",
   "sm_src": "the same solve's neutral point against the combat CG",
   "cd0_src": "assumed: a clean stealth fighter, 0.016 to 0.022",
-  "K": 0.17307905590394287,
+  "K": 0.1731,
   "K_src": "assumed: an Oswald factor of 0.72 on aspect ratio 2.55"
  },
  "alpha": [

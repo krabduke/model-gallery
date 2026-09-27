@@ -22,15 +22,18 @@ import spec as car   # noqa: E402
 
 U, RHO, G = 50.0, 1.225, 9.81
 q = 0.5 * RHO * U * U
-off, on = load("vx1_forces.json"), load("vx1_fans_forces.json")
-reg_off, reg_on = load("vx1_regions.json"), load("vx1_fans_regions.json")
+# fans off: the car as first built; fans on: the finished car, at 180 km/h
+off, on = load("vx1_forces.json"), load("vx1_bal2_forces.json")
+reg_off, reg_on = load("vx1_regions.json"), load("vx1_bal2_regions.json")
+# What we had published, before the study: fixed here, because the specs
+# now carry what the study measured.
+PUBLISHED_VX1 = {"cla": 4.55, "wings": 1.20, "floor": 3.35, "cda": 1.28, "balance": 44.5,
+                 "fan_kg": 650.0}
 vx1 = {
     "U": U,
     "claims": {
-        "cla": car.cla(), "cda": car.cda(), "balance": 100 * car.AERO["aero_balance"],
-        "wings": car.AERO["cla_wings"], "floor": car.AERO["cla_floor"],
-        "fan_kg": car.FAN["downforce_kg"],
-        "cla_src": f"spec target: wings {car.AERO['cla_wings']} + floor {car.AERO['cla_floor']}, never computed",
+        **PUBLISHED_VX1,
+        "cla_src": "spec target: wings 1.20 + floor 3.35, never computed",
         "cda_src": "spec target, never computed",
         "bal_src": "spec target",
         "fan_src": "spec: 1.2 kPa of plenum suction over the sealed floor",
@@ -47,36 +50,67 @@ if on:
     # what the fans add, in kilograms at this speed
     vx1["fan_kg"] = round(-(on["Cl"]["mean"] - (off["Cl"]["mean"] if off else 0)) * q / G, 0)
 vx1["intro"] = (
-    "<p>Two runs of the car as built, at 180 km/h over a moving road with the wheels turning: "
-    "once with the fans stopped, once with them drawing 8 m³/s out of the sealed floor, as the "
-    "spec says they do. The first attempt at the second run found the fans could not breathe at "
-    "all: their intakes opened onto the track, two millimetres from it, and the road shut them. "
-    "They now open in the tunnel roofs, and the car was rebuilt before the run below.</p>")
-vx1["caption"] = ("Fans running. The deep blue under the floor is the plenum they hold under "
-                  "suction; the orange on the nose and the wings' leading edges is where the air "
-                  "stops against them.")
-if reg_off and reg_on:
+    "<p>The car as built, at 180 km/h over a moving road with its wheels turning: once with the "
+    "fans stopped, once with them drawing 8 m³/s out of the sealed floor as the spec says they do. "
+    "The first attempt at the second run found the fans could not breathe at all: their intakes "
+    "opened onto the track, two millimetres from it, and the road shut them. They were moved into "
+    "the tunnel roofs, the wings were retrimmed for balance, and the finished car was run again "
+    "at 180 and at 250 km/h.</p>")
+vx1["caption"] = ("The finished car, fans running. The deep blue under the floor is the plenum they "
+                  "hold under suction; the orange on the nose and the wings' leading edges is where "
+                  "the air stops against them.")
+if reg_off:
     w_off = -(reg_off["front wing"]["CL.A"] + reg_off["rear wing"]["CL.A"])
-    w_on = -(reg_on["front wing"]["CL.A"] + reg_on["rear wing"]["CL.A"])
-    f_off, f_on = -reg_off["floor and diffuser"]["CL.A"], -reg_on["floor and diffuser"]["CL.A"]
-    front_on = 100 * on["Cl(f)"]["mean"] / on["Cl"]["mean"]
+    f_off = -reg_off["floor and diffuser"]["CL.A"]
     vx1["notes"] = [
         ["The fans are the car",
          f"Stopped, they leave the sealed floor full of air rammed in at the nose, and it lifts: "
-         f"{-f_off:+.1f} m². Running, they pull it down to {f_on:.1f} m² of downforce, most of "
-         f"the car's total. The spec had it the other way round: the floor's downforce as a "
-         f"given, the fans on top."],
+         f"{-f_off:+.1f} m². Running, they hold the car down with a force that hardly changes with "
+         f"speed, as a fan car's should: 771 kg at 180 km/h, 732 at 250."],
         ["The wings do better than claimed",
-         f"Front and rear together make {w_off:.2f} m² with the fans off and {w_on:.2f} with them "
-         f"on, against the {car.AERO['cla_wings']} the spec gave them. The rear wing is also the "
-         f"largest single source of drag."],
-        ["The balance is further aft",
-         f"With the fans running {front_on:.0f} % of the downforce is on the front axle, not the "
-         f"{100 * car.AERO['aero_balance']:.1f} % the spec and the lap simulation assume: the "
-         f"fans pull hardest at the back of the floor, where their intakes are."]]
-if off and on:
-    vx1["total_said_kg"] = round(car.cla() * q / G + car.FAN["downforce_kg"], 0)
-    vx1["total_got_kg"] = round(-on["Cl"]["mean"] * q / G, 0)
+         f"Front and rear together made {w_off:.2f} m² with the fans off, against the "
+         f"1.20 the spec gave them. After the retrim the rear "
+         f"wing is flat and the front wing carries the balance."],
+        ["Fast corners are Formula 1's",
+         "An F1 car's downforce grows with the square of its speed and the VX-1's hardly does, so "
+         "below 195 km/h the fan car grips harder and above it the F1 car does. Over a lap it is "
+         "still quicker, by 1.5 s, not the 10.7 we had claimed."]]
+# the finished car: fans running at two speeds, and what they split into
+u50, u70 = load("vx1_bal2_forces.json"), load("vx1_bal2_u70_forces.json")
+if u50 and u70:
+    qq = lambda u: 0.5 * RHO * u * u
+    D50, D70 = -u50["Cl"]["mean"] * qq(50), -u70["Cl"]["mean"] * qq(70)
+    a = (D70 - D50) / (qq(70) - qq(50))
+    X50, X70 = u50["Cd"]["mean"] * qq(50), u70["Cd"]["mean"] * qq(70)
+    cda0 = (X70 - X50) / (qq(70) - qq(50))
+    # the car's own lap simulation, on the spec that now carries these
+    sys.path.insert(0, os.path.join(HERE, "..", "aero-hypercar", "aero"))
+    import laptime
+    ours, f1 = laptime.build_cars()
+    segs = laptime.circuit(laptime.calibrate(f1))
+    lap = [{"k": k, "ours": round(laptime.simulate(ours, segs, k)["time"], 2),
+            "f1": round(laptime.simulate(f1, segs, k)["time"], 2)} for k in laptime.K_BAND]
+    vx1["final"] = {
+        "kg50": round(D50 / G), "kg70": round(D70 / G), "cla_v2": round(a, 3),
+        "fan_kg": round((D50 - a * qq(50)) / G), "cda": round(cda0, 3),
+        "jet_n": round((cda0 - u50["Cd"]["mean"]) * qq(50)),
+        "front50": round(100 * u50["Cl(f)"]["mean"] / u50["Cl"]["mean"], 1),
+        "front70": round(100 * u70["Cl(f)"]["mean"] / u70["Cl"]["mean"], 1),
+        "lap": lap,
+        # what the spec had claimed, before: passive 4.55 m2 plus 650 kg of fan
+        "said50": round(4.55 * qq(50) / G + 650), "said70": round(4.55 * qq(70) / G + 650),
+        "said_lap": 10.7}
+# the retrim for balance, step by step, fans running
+steps = []
+for name, what in (("vx1_fans_forces.json", "Intakes fixed, wings as designed"),
+                   ("vx1_bal_forces.json", "Rear wing 17 to 4 degrees, front wing up 3 to 4"),
+                   ("vx1_bal2_forces.json", "Rear wing flat, front wing 8 % larger and up 2 more")):
+    d = load(name)
+    if d:
+        steps.append({"what": what, "front": round(100 * d["Cl(f)"]["mean"] / d["Cl"]["mean"], 1),
+                      "cla": round(-d["Cl"]["mean"], 2), "cda": round(d["Cd"]["mean"], 2),
+                      "kg": round(-d["Cl"]["mean"] * q / G, 0)})
+vx1["steps"] = steps
 json.dump(vx1, open(os.path.join(OUT, "vx1.json"), "w"), indent=1)
 
 # ------------------------------------------------------------------ Nyx
@@ -88,9 +122,9 @@ sys.path.insert(0, os.path.join(HERE, "..", "nyx-jet", "nyx"))
 sys.path.insert(0, os.path.join(HERE, "..", "nyx-jet", "aero"))
 try:
     import vlm, agility   # noqa: E402
-    sm, x_np, x_cg, cla = vlm.static_margin()
-    nyx_claims = {"cla": float(cla), "sm": float(100 * sm), "cd0": agility.CD0,
-                  "x_np": float(x_np), "x_cg": float(x_cg),
+    _, cla = vlm.neutral_point()     # the lattice itself is unchanged
+    # published before the study; the aero modules now carry what it measured
+    nyx_claims = {"cla": float(cla), "sm": -4.8, "cd0": 0.018,
                   "cla_src": "our vortex-lattice solve, canards and wing",
                   "sm_src": "the same solve's neutral point against the combat CG",
                   "cd0_src": "assumed: a clean stealth fighter, 0.016 to 0.022"}
@@ -113,8 +147,10 @@ if nyx_runs:
                           "cd0": nyx["CD"][0], "K": K}
         # what the measured polar does to the published sustained turn
         j = agility.Jet(cd0=nyx["CD"][0]); j.K = K
-        j0 = agility.Jet()
-        s_cfd, s_ours = j.best_sustained(0.0), j0.best_sustained(0.0)
+        s_cfd = j.best_sustained(0.0)
+        s_ours = (25.5, None, 5.29)          # as published, on CD0 0.018 and e 0.72
+        class _J: K = 0.1731
+        j0 = _J()
         nyx["claims"]["K"] = j0.K
         nyx["claims"]["K_src"] = "assumed: an Oswald factor of 0.72 on aspect ratio 2.55"
         nyx["turn"] = {"ours": round(s_ours[0], 1), "ours_g": round(s_ours[2], 2),

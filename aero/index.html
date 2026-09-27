@@ -114,6 +114,23 @@
   .chart svg .axis{stroke:var(--ink-3); stroke-width:1}
   .chart svg .grid{stroke:#CDD4D0; stroke-width:1}
 
+  .retrim{margin:44px 0 0}
+  .retrim h3{margin:0; font-family:var(--cond); font-size:26px; font-weight:600}
+  .retrim > p{margin:8px 0 0; color:var(--ink-2); max-width:66ch}
+  .retrim ol{margin:20px 0 0; padding:0; list-style:none; border-top:1.5px solid var(--ink); counter-reset:step}
+  .retrim li{display:grid; grid-template-columns:40px minmax(200px, 1.3fr) 2fr 150px; gap:18px; align-items:center;
+             padding:14px 0; border-bottom:1px solid var(--rule); counter-increment:step}
+  .retrim li::before{content:counter(step); font-family:var(--cond); font-weight:600; font-size:24px; color:var(--ink-3)}
+  .retrim .w{font-size:15px}
+  .retrim .track{position:relative; height:26px; background:linear-gradient(90deg, transparent 0 40%, rgba(79,114,128,.18) 40% 50%, transparent 50%);
+                 border-left:1px solid var(--ink-3)}
+  .retrim .track i{position:absolute; top:9px; height:8px; left:0; background:var(--ink)}
+  .retrim .track i.in{background:var(--blue)}
+  .retrim .track span{position:absolute; top:-2px; font-family:var(--cond); font-weight:600; font-size:17px; transform:translateX(8px)}
+  .retrim .band{font-style:normal; position:absolute; left:40%; top:-18px; font-size:11.5px; color:var(--blue)}
+  .retrim .f{font-size:13.5px; color:var(--ink-2); text-align:right}
+  .retrim .f b{color:var(--ink); font-weight:600}
+  @media (max-width:900px){ .retrim li{grid-template-columns:32px 1fr; } .retrim .track, .retrim .f{grid-column:2} .retrim .f{text-align:left} }
   .notes{margin:38px 0 0; display:grid; grid-template-columns:repeat(3, 1fr); gap:28px;
          border-top:1px solid var(--rule); padding-top:24px}
   .notes h4{margin:0 0 6px; font-family:var(--cond); font-size:19px; font-weight:600}
@@ -194,6 +211,7 @@
       <div class="chart" id="vx1-conv"><h4>Converging</h4></div>
       <div class="chart" id="vx1-split"><h4>Where the downforce acts</h4></div>
     </div>
+    <div class="retrim" id="vx1-retrim"></div>
     <div class="notes" id="vx1-notes"></div>
   </div>
 </section>
@@ -371,7 +389,7 @@ if (vx1 && vx1.results) {
   const sign = (s, g, what) => (s * g < 0 ? ['miss', 'The wrong way round', `it ${what}`] : null);
   const q = 0.5 * 1.225 * vx1.U * vx1.U;
   const rows = [
-    {what: 'Downforce, fans off', src: said.cla_src, said: said.cla, got: cla,
+    {what: 'Downforce, fans stopped', src: 'as first built; ' + said.cla_src, said: said.cla, got: cla,
      saidText: `${fmt(said.cla)}<small>m² CL·A</small>`, gotText: `${fmt(cla)}<small>m²</small>`,
      sd: `± ${fmt(2 * r.Cl.sd)} over the last ${r.window} iterations`,
      verdict: sign(said.cla, cla, 'lifts the car, by ' + fmt(-cla * q / 9.81, 0) + ' kg at 180 km/h') || verdict(said.cla, cla)},
@@ -383,44 +401,57 @@ if (vx1 && vx1.results) {
     {what: 'from the floor', src: 'the sealed floor, its tunnels and diffuser', said: said.floor, got: floor,
      saidText: `${fmt(said.floor)}<small>m²</small>`, gotText: `${fmt(floor)}<small>m²</small>`,
      verdict: sign(said.floor, floor, 'lifts: with the fans off nothing draws the air out of the plenum') || verdict(said.floor, floor)});
-  rows.push(
-    {what: 'Drag', src: said.cda_src, said: said.cda, got: cda,
-     saidText: `${fmt(said.cda)}<small>m² CD·A</small>`, gotText: `${fmt(cda)}<small>m²</small>`,
-     sd: `± ${fmt(2 * r.Cd.sd)}`, verdict: verdict(said.cda, cda, {higherIs: 'worse'})});
-  if (vx1.fans) {
-    const f = vx1.fans, cla_on = down(f.Cl.mean);
-    rows.push({what: 'What the fans add', src: said.fan_src, said: said.fan_kg, got: vx1.fan_kg,
-      saidText: `${fmt(said.fan_kg, 0)}<small>kg</small>`, gotText: `${fmt(vx1.fan_kg, 0)}<small>kg</small>`,
-      sd: 'the difference between the runs, fans on and off, at 180 km/h', verdict: verdict(said.fan_kg, vx1.fan_kg)});
-    if (vx1.total_said_kg) rows.push({what: 'All of it, fans on', src: 'wings and floor at 180 km/h plus the fans, as the lap simulation adds them',
-      said: vx1.total_said_kg, got: vx1.total_got_kg,
-      saidText: `${fmt(vx1.total_said_kg, 0)}<small>kg</small>`, gotText: `${fmt(vx1.total_got_kg, 0)}<small>kg</small>`,
-      sd: `± ${fmt(2 * f.Cl.sd * q / 9.81, 0)} kg`, verdict: verdict(vx1.total_said_kg, vx1.total_got_kg)});
-    const front = 100 * f['Cl(f)'].mean / f.Cl.mean;
-    rows.push({what: 'Balance, fans on', src: said.bal_src, said: said.balance, got: front, bar: false,
-      saidText: `${fmt(said.balance, 1)}<small>% front</small>`, gotText: cla_on > 0 ? `${fmt(front, 1)}<small>% front</small>` : 'net lift',
-      verdict: cla_on > 0 ? verdict(said.balance, front, {points: true}) : ['miss', 'No balance to speak of', 'the car makes net lift']});
-  } else {
-    rows.push({what: 'What the fans add', src: said.fan_src, said: said.fan_kg, got: 0, bar: false,
-      saidText: `${fmt(said.fan_kg, 0)}<small>kg</small>`, gotText: '<span class="pending">running</span>',
-      verdict: ['', 'Still running', 'the fans-on case is being solved']});
+  const F = vx1.final;
+  if (F) {
+    const lap = F.lap.find(l => l.k === 0.25) || F.lap[F.lap.length - 1];
+    const lap2 = F.lap.find(l => l.k !== lap.k);
+    const gain = lap.f1 - lap.ours;
+    rows.push(
+      {what: 'What the fans hold down', src: 'the part that does not grow with speed, from the finished car at 180 and 250 km/h',
+       said: said.fan_kg, got: F.fan_kg, saidText: `${fmt(said.fan_kg, 0)}<small>kg</small>`, gotText: `${fmt(F.fan_kg, 0)}<small>kg</small>`,
+       verdict: verdict(said.fan_kg, F.fan_kg)},
+      {what: 'All of it, 180 km/h', src: 'the finished car, fans running, against the spec\u2019s wings, floor and fans',
+       said: F.said50, got: F.kg50, saidText: `${fmt(F.said50, 0)}<small>kg</small>`, gotText: `${fmt(F.kg50, 0)}<small>kg</small>`,
+       sd: `± ${fmt(2 * vx1.fans.Cl.sd * q / 9.81, 0)} kg`, verdict: verdict(F.said50, F.kg50)},
+      {what: 'All of it, 250 km/h', src: 'the same car, faster: a fan car\u2019s downforce hardly grows',
+       said: F.said70, got: F.kg70, saidText: `${fmt(F.said70, 0)}<small>kg</small>`, gotText: `${fmt(F.kg70, 0)}<small>kg</small>`,
+       verdict: verdict(F.said70, F.kg70)},
+      {what: 'Drag', src: said.cda_src, said: said.cda, got: F.cda,
+       saidText: `${fmt(said.cda)}<small>m² CD·A</small>`, gotText: `${fmt(F.cda)}<small>m²</small>`,
+       sd: `and the fans\u2019 jets push back ${fmt(F.jet_n, 0)} N`, verdict: verdict(said.cda, F.cda, {higherIs: 'worse'})},
+      {what: 'Balance, 180 km/h', src: said.bal_src, said: said.balance, got: F.front50, bar: false,
+       saidText: `${fmt(said.balance, 1)}<small>% front</small>`, gotText: `${fmt(F.front50, 1)}<small>% front</small>`,
+       verdict: F.front50 >= 40 && F.front50 <= 50 ? ['hold', 'Inside the 40 to 50 % band', `after two retrims; it drifts to ${fmt(F.front70, 0)} % by 250 km/h`] : verdict(said.balance, F.front50, {points: true})},
+      {what: 'A lap against F1', src: 'the car\u2019s own lap simulation, on the measured aerodynamics', said: F.said_lap, got: gain,
+       saidText: `${fmt(F.said_lap, 1)}<small>s quicker</small>`, gotText: `${fmt(gain, 1)}<small>s quicker</small>`,
+       sd: lap2 ? `${fmt(lap2.f1 - lap2.ours, 1)} s at the light end of the tyre model` : '', verdict: verdict(F.said_lap, gain)});
   }
   ledger($('#vx1-ledger'), rows);
   $('#vx1-intro').innerHTML = vx1.intro || '';
   $('#vx1-cap').textContent = vx1.caption || '';
   $('#vx1-notes').innerHTML = (vx1.notes || []).map(n => `<div><h4>${esc(n[0])}</h4><p>${esc(n[1])}</p></div>`).join('');
+  if (vx1.steps && vx1.steps.length) {
+    // the balance, retrimmed: each step's share of downforce on the front axle
+    // on a 0-100 % track, the 40-50 % a car needs shaded
+    const st = vx1.steps;
+    $('#vx1-retrim').innerHTML = `<h3>Retrimmed for balance</h3>
+      <p>With the fans breathing, only ${fmt(st[0].front, 1)} % of the downforce was on the front axle: the fans pull at the back of the floor. A car that rear-heavy in downforce pushes wide in fast corners. The wings were retrimmed and each step run through the solver again.</p>
+      <ol>${st.map((x, i) => `<li><span class="w">${esc(x.what)}</span>
+        <span class="track">${i === 0 ? '<em class="band">40 to 50 % front</em>' : ''}<i class="${x.front >= 40 ? 'in' : ''}" style="width:${x.front}%"></i><span style="left:${x.front}%">${fmt(x.front, 1)} %</span></span>
+        <span class="f"><b>${fmt(x.kg, 0)} kg</b> down at 180 km/h, drag ${fmt(x.cda)} m²</span></li>`).join('')}</ol>`;
+  }
   const hi = r.history;
   const series = [{name: 'downforce, fans off', x: hi.it, y: hi.Cl.map(v => -v), color: '#1B2124'},
                   {name: 'drag, fans off', x: hi.it, y: hi.Cd, color: '#7F888C'}];
   if (vx1.fans) {
     const h2 = vx1.fans.history;
-    series.push({name: 'downforce, fans on', x: h2.it, y: h2.Cl.map(v => -v), color: '#4F7280'},
-                {name: 'drag, fans on', x: h2.it, y: h2.Cd, color: '#A9B7BD'});
+    series.push({name: 'downforce, finished car', x: h2.it, y: h2.Cl.map(v => -v), color: '#4F7280'},
+                {name: 'drag, finished car', x: h2.it, y: h2.Cd, color: '#A9B7BD'});
   }
   const ys = series.flatMap(sr => sr.y);
   chart($('#vx1-conv'), {series, xlab: 'iteration', ylab: 'm²', xr: [0, Math.max(...series.flatMap(sr => sr.x))],
     yr: [Math.floor(Math.min(...ys, 0) - 0.5), Math.ceil(Math.max(...ys) + 0.5)]});
-  $('#vx1-conv').insertAdjacentHTML('beforeend', `<p>Both runs, whole car, against the solver's iterations: a negative downforce is lift. The ledger takes the mean of the last ${r.window}.</p>`);
+  $('#vx1-conv').insertAdjacentHTML('beforeend', `<p>The first car fans off and the finished car fans on, against the solver's iterations: a negative downforce is lift. The ledger takes the mean of the last ${r.window}.</p>`);
   // where it comes from: downforce by region, the claims marked
   // the claims are for both wings together and for the floor: chart those
   const group = (R) => R && {
@@ -453,7 +484,7 @@ if (vx1 && vx1.results) {
   mark(said.floor, 1, 1, `we said ${said.floor}`);
   sv += `<text x="${x0 - 6}" y="${H - 8}" text-anchor="end">lift</text><text x="${x0 + 6}" y="${H - 8}">downforce, m² CL·A</text>`;
   $('#vx1-split').innerHTML = `<h4>Where it comes from</h4><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Downforce by region">${sv}</svg>` +
-    `<p>Downforce by part of the car, fans off${ron ? ' (and fans on, the blue bars)' : ''}. The dashed lines are what the spec gave the wings between them and the floor.</p>`;
+    `<p>Downforce by part of the car, fans off${ron ? ' (and the finished car with them running, the blue bars)' : ''}. The dashed lines are what the spec gave the wings between them and the floor.</p>`;
   }
 }
 
