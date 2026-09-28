@@ -8,7 +8,7 @@
 <meta property="og:type" content="website">
 <meta property="og:title" content="Parametric machines">
 <meta property="og:description" content="Two engines and the vehicles built around them, generated from their specifications, drawn to scale and checked by CFD.">
-<meta property="og:image" content="https://krabduke.github.io/model-gallery/img/nyx.jpg">
+<meta property="og:image" content="https://krabduke.github.io/model-gallery/img/studio/vx1_hero.jpg">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#E7EBE7">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23E7EBE7'/%3E%3Crect x='3' y='3' width='26' height='26' fill='none' stroke='%231B2124' stroke-width='1.5'/%3E%3Cpath d='M7 22 H25 M7 20 V24 M25 20 V24' stroke='%231B2124' stroke-width='1.5'/%3E%3Cpath d='M9 16 L16 8 L23 16' fill='none' stroke='%23C23A21' stroke-width='2'/%3E%3C/svg%3E">
@@ -119,6 +119,16 @@
   .view .toggle{position:absolute; right:10px; bottom:10px; font:inherit; font-size:12.5px;
                 background:var(--film); color:var(--ink); border:1px solid var(--ink); padding:3px 9px; cursor:pointer}
   .view .toggle:hover{border-color:var(--red)}
+  .photos{display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin-top:8px}
+  .photos .ph{padding:0; border:1.5px solid var(--ink); background:#0d0f10; cursor:zoom-in; aspect-ratio:16 / 9; overflow:hidden}
+  .photos .ph img{width:100%; height:100%; object-fit:cover; display:block; transition:transform .35s ease}
+  .photos .ph:hover img, .photos .ph:focus-visible img{transform:scale(1.04)}
+  .photos .ph:focus-visible{outline:2px solid var(--red); outline-offset:2px}
+  .lb{position:fixed; inset:0; z-index:50; background:rgba(8,9,10,.94); display:none; place-items:center; cursor:zoom-out}
+  .lb.on{display:grid}
+  .lb img{max-width:94vw; max-height:88vh; box-shadow:0 20px 80px rgba(0,0,0,.6)}
+  .lb button{position:absolute; top:16px; right:18px; font:inherit; color:#E7EBE7; background:none; border:1.5px solid #E7EBE7; padding:6px 12px; cursor:pointer}
+  @media (prefers-reduced-motion: reduce){ .photos .ph img{transition:none} }
   .plate h3{font-family:var(--cond); font-weight:600; font-size:32px; letter-spacing:-.01em; margin:18px 0 0; line-height:1.05}
   .plate .kind{margin:4px 0 0; color:var(--ink-2); font-size:15px}
   .plate .does{margin:12px 0 0; font-size:15.5px; max-width:52ch}
@@ -331,14 +341,14 @@ const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const M = {
   nyx: {name: 'Nyx', kind: 'Canard-delta fighter', hero: 'plan', plate: 'plan', no: 'NYXJET-00',
     viewer: 'https://krabduke.github.io/nyx-jet/viewer/', pdf: 'https://krabduke.github.io/nyx-jet/drawings.pdf',
-    src: 'https://github.com/krabduke/nyx-jet', render: 'img/nyx.jpg',
+    src: 'https://github.com/krabduke/nyx-jet', render: 'img/studio/nyx_hero.jpg',
     line: 'Twin-engine canard-delta fighter with swivel nozzles, built to out-turn everything.',
     does: 'Fly it on its own aerodynamics, lower the gear, open the bay and the canopy, or take it apart.',
     figs: [['Instantaneous turn', '34.7 °/s at sea level'], ['Sustained turn', '<s>25.5</s>22.4 °/s at 4.6 g'],
            ['Thrust to weight', '1.58'], ['Length by span', '14.9 by 13.2 m'], ['Parts', '434, with 30 checks passing']]},
   aether: {name: 'Aether AX-1', kind: 'Adaptive-cycle turbofan', hero: 'elev', plate: 'elev', no: 'AETHER-00',
     viewer: 'https://krabduke.github.io/aether-ax1/viewer/', pdf: 'https://krabduke.github.io/aether-ax1/drawings.pdf',
-    src: 'https://github.com/krabduke/aether-ax1', render: 'img/aether.jpg',
+    src: 'https://github.com/krabduke/aether-ax1', render: 'img/studio/aether_hero.jpg',
     line: 'Three-stream adaptive-cycle turbofan with a three-bearing swivel nozzle.',
     does: 'Run it from idle to full reheat, swivel the nozzle, cut it open, or split it module by module.',
     figs: [['Thrust', '90.5 kN dry, 134.9 kN reheat'], ['Overall pressure ratio', '36.6'],
@@ -346,14 +356,14 @@ const M = {
            ['Parts', '134, with 120 checks passing']]},
   v8: {name: 'RX-8V Vertex', kind: 'Flat-plane V8 hybrid', hero: 'end', plate: 'end', no: 'CARENG-00',
     viewer: 'https://krabduke.github.io/car-engine-v8-hybrid/viewer/', pdf: 'https://krabduke.github.io/car-engine-v8-hybrid/drawings.pdf',
-    src: 'https://github.com/krabduke/car-engine-v8-hybrid', render: 'img/v8.jpg',
+    src: 'https://github.com/krabduke/car-engine-v8-hybrid', render: 'img/studio/v8_hero.jpg',
     line: '2.0 litre flat-plane V8, hot-vee twin turbo, 280 kW hybrid.',
     does: 'Run it on a live slider-crank, section it through any cylinder, show its airflow, or strip it on the bench.',
     figs: [['Displacement', '1,999 cc'], ['Combined output', '1,254 hp'], ['Redline', '16,000 rpm'],
            ['Mass', '146 kg'], ['Parts', '478, with 40 checks passing']]},
   vx1: {name: 'VX-1 Vortex', kind: 'Ground-effect fan car', hero: 'elev', plate: 'plan', no: 'AEROHY-00',
     viewer: 'https://krabduke.github.io/aero-hypercar/viewer/', pdf: 'https://krabduke.github.io/aero-hypercar/drawings.pdf',
-    src: 'https://github.com/krabduke/aero-hypercar', render: 'img/vx1.jpg',
+    src: 'https://github.com/krabduke/aero-hypercar', render: 'img/studio/vx1_hero.jpg',
     line: 'A ground-effect fan car, built to beat Formula 1 on a Formula 1 circuit.',
     does: 'Put it in the wind tunnel, switch the fans, cut away a side, or take it apart in the garage.',
     figs: [['Mass', '700 kg, against F1’s 798'], ['Fan downforce', '<s>811</s>2,100 kg, held by a sealed floor at any speed'],
@@ -432,6 +442,8 @@ function plate(k, role){
       <span class="edge" aria-hidden="true"></span>
       <button class="toggle" type="button" aria-pressed="false">Show the render</button>
     </div>
+    <div class="photos" role="list" aria-label="Studio photographs of the ${m.name}">${['hero', 'side', 'rear'].map(v =>
+      `<button type="button" role="listitem" class="ph" data-src="img/studio/${k}_${v}.jpg" aria-label="Open the ${v} photograph of the ${m.name}"><img src="img/studio/${k}_${v}.jpg" alt="" loading="lazy"></button>`).join('')}</div>
     <h3>${m.name}</h3>
     <p class="kind">${role}. ${m.line}</p>
     <p class="does">${m.does}</p>
@@ -443,6 +455,19 @@ function plate(k, role){
     </div>
   </article>`;
 }
+// the studio photographs, full screen
+const lb = document.createElement('div');
+lb.className = 'lb'; lb.setAttribute('role', 'dialog'); lb.setAttribute('aria-modal', 'true');
+lb.innerHTML = '<img alt=""><button type="button">Close</button>';
+document.body.appendChild(lb);
+const lbClose = () => { lb.classList.remove('on'); lb.opener?.focus(); };
+lb.addEventListener('click', lbClose);
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && lb.classList.contains('on')) lbClose(); });
+document.addEventListener('click', e => {
+  const b = e.target.closest('.ph'); if (!b) return;
+  lb.querySelector('img').src = b.dataset.src; lb.opener = b;
+  lb.classList.add('on'); lb.querySelector('button').focus();
+});
 const powers = `<div class="powers" aria-hidden="true"><svg viewBox="0 0 80 20"><path d="M2 5 V15 M2 10 H70" stroke="#1B2124" stroke-width="1.2" fill="none"/><path d="M78 10 L69 6.5 L69 13.5 Z" fill="#1B2124"/></svg><span>goes into</span></div>`;
 for (const s of document.querySelectorAll('.spread')) {
   const [a, b] = s.dataset.pair.split(' ');
