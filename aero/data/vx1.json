@@ -2057,50 +2057,61 @@
   }
  },
  "fan_kg": 908.0,
- "intro": "<p>The car as built, at 180 km/h over a moving road with its wheels turning: once with the fans stopped, once with them drawing 8 m\u00b3/s out of the sealed floor as the spec says they do. The first attempt at the second run found the fans could not breathe at all: their intakes opened onto the track, two millimetres from it, and the road shut them. They were moved into the tunnel roofs, the wings were retrimmed for balance, and the finished car was run again at 180 and at 250 km/h.</p>",
- "caption": "The finished car, fans running. The deep blue under the floor is the plenum they hold under suction; the orange on the nose and the wings' leading edges is where the air stops against them.",
+ "intro": "<p>The car as built, at 180 km/h over a moving road with its wheels turning: once with the fans stopped, once with them drawing 8 m\u00b3/s out of the sealed floor as the spec says they do. The first attempt at the second run found the fans could not breathe at all: their intakes opened onto the track, two millimetres from it, and the road shut them. Moved into the tunnel roofs, they worked, and showed the open floor could not: above 195 km/h an F1 car gripped harder. So the floor was sealed all round and held at a set suction, the wings retrimmed to suit, and the finished car was run at 180, 250 and 340 km/h.</p>",
+ "caption": "The finished car at 340 km/h, floor sealed. The deep blue under it is the plenum the fans hold at 7 kPa; the orange on the nose and the wings' leading edges is where the air stops against them.",
  "notes": [
   [
-   "The fans are the car",
-   "Stopped, they leave the sealed floor full of air rammed in at the nose, and it lifts: +2.1 m\u00b2. Running, they hold the car down with a force that hardly changes with speed, as a fan car's should: 771 kg at 180 km/h, 732 at 250."
+   "The open floor could not work",
+   "As first built the floor was open at the front: a venturi tunnel each side with a fan in its roof. Stopped, the fans left it full of rammed air and it lifted. Running, the air the car drove into the tunnels swamped them, and the 771 kg they appeared to hold came from forcing 4 m\u00b3/s through an intake choked to \u221231 kPa: about 380 kW of fan work from fans rated 38. Above 195 km/h an F1 car gripped harder."
   ],
   [
-   "The wings do better than claimed",
-   "Front and rear together made 1.67 m\u00b2 with the fans off, against the 1.20 the spec gave them. After the retrim the rear wing is flat and the front wing carries the balance."
+   "So it was sealed",
+   "Skirts all round now, across the front and the back as well as down the sides, like the Chaparral 2J's and the Brabham BT46B's. The fans hold each side at 7 kPa and only have to move what leaks in under the skirts: 42 kW for the pair. Measured at three speeds it holds 2117 kg at any speed, and the wings add to it."
   ],
   [
-   "Fast corners are Formula 1's",
-   "An F1 car's downforce grows with the square of its speed and the VX-1's hardly does, so below 195 km/h the fan car grips harder and above it the F1 car does. Over a lap it is still quicker, by 1.5 s, not the 10.7 we had claimed."
+   "Faster than F1 everywhere it goes",
+   "It out-grips an F1 car up to 366 km/h, past F1's top speed, and laps 10.9 s quicker at the harsh end of the tyre model. The limits, stated: riding a kerb with 30 % of the suction lost it holds to 307 km/h, and its top speed, 337 km/h, is level with F1's."
   ]
  ],
- "final": {
+ "open": {
   "kg50": 771,
   "kg70": 732,
-  "cla_v2": -0.257,
-  "fan_kg": 811,
-  "cda": 1.322,
-  "jet_n": 535,
-  "front50": 41.4,
-  "front70": 36.4,
+  "crossover": 195
+ },
+ "final": {
+  "kg50": 2303,
+  "kg70": 2481,
+  "kg95": 2789,
+  "cla_v2": 1.192,
+  "fan_kg": 2117,
+  "cda": 1.755,
+  "jet_n": 0,
+  "front50": 40.9,
+  "front70": 39.7,
+  "front95": 39.7,
   "lap": [
    {
     "k": 0.15,
-    "ours": 89.3,
+    "ours": 78.99,
     "f1": 89.58
    },
    {
     "k": 0.25,
-    "ours": 90.46,
+    "ours": 81.02,
     "f1": 91.93
    }
   ],
+  "crossover": 366,
+  "kerb_crossover": 307,
+  "suction_kpa": 7.0,
   "said50": 1360,
   "said70": 2042,
+  "said95": 3214,
   "said_lap": 10.7
  },
  "steps": [
   {
-   "what": "Intakes fixed, wings as designed",
+   "what": "Open floor: intakes fixed, wings as designed",
    "front": 31.7,
    "cla": 5.99,
    "cda": 1.38,
@@ -2119,6 +2130,20 @@
    "cla": 4.94,
    "cda": 0.97,
    "kg": 771.0
+  },
+  {
+   "what": "Floor sealed at 5.5 kPa, rear wing back to 17",
+   "front": 39.5,
+   "cla": 11.68,
+   "cda": 1.72,
+   "kg": 1823.0
+  },
+  {
+   "what": "7 kPa, front wing 12 % larger and up 3 more",
+   "front": 40.9,
+   "cla": 14.75,
+   "cda": 1.8,
+   "kg": 2303.0
   }
  ]
 }

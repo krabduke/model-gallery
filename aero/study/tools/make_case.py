@@ -53,6 +53,9 @@ HEAD = """FoamFile
 """
 
 
+RHO = 1.225        # kg/m3: OpenFOAM's incompressible pressure is p / rho
+
+
 def write(path, cls, obj, body):
     full = os.path.join(run, path)
     os.makedirs(os.path.dirname(full), exist_ok=True)
@@ -89,7 +92,7 @@ geo += "\n" + "\n".join(f'    box{i} {{ type searchableBox; min {v3(b["min"])}; 
                         for i, b in enumerate(boxes))
 feats = "\n".join(f'        {{ file "{n}.eMesh"; level {s["level"][1]}; }}' for n, s in surf.items())
 refs = "\n".join(f'        {n} {{ level ({s["level"][0]} {s["level"][1]}); '
-                 f'patchInfo {{ type {"patch" if "flow" in s else "wall"}; }} }}'
+                 f'patchInfo {{ type {"patch" if ("flow" in s or "suction_pa" in s) else "wall"}; }} }}'
                  for n, s in surf.items())
 regs = "\n".join(f'        box{i} {{ mode inside; levels ((1e15 {b["level"]})); }}'
                  for i, b in enumerate(boxes))
@@ -332,6 +335,10 @@ write("constant/turbulenceProperties", "dictionary", "turbulenceProperties",
 def wall_U(n, s):
     # a fan's faces: the air leaves the domain through the one ahead of the
     # rotor and comes back through the one behind it, at the fan's flow
+    if "suction_pa" in s:
+        # a fan held at a set suction by its controller: whatever flows out
+        # through its face flows; nothing comes back in through it
+        return f"    {n} {{ type inletOutlet; inletValue uniform (0 0 0); value uniform (0 0 0); }}"
     if s.get("flow_dir") == "out":
         return (f"    {n} {{ type flowRateOutletVelocity; volumetricFlowRate {s['flow']}; "
                 f"value uniform (0 0 0); }}")
@@ -373,7 +380,9 @@ pb = ["    inlet { type zeroGradient; }", "    outlet { type fixedValue; value u
 if FAR:
     pb = [f"    {n} {{ type freestreamPressure; freestreamValue uniform 0; value uniform 0; }}"
           for n in OUTER] + ["    symmetry { type symmetryPlane; }"]
-pb += [f"    {n} {{ type zeroGradient; }}" for n in surf]
+pb += [(f"    {n} {{ type fixedValue; value uniform {-s['suction_pa'] / RHO:.6g}; }}"
+        if "suction_pa" in s else f"    {n} {{ type zeroGradient; }}")
+       for n, s in surf.items()]
 write("0/p", "volScalarField", "p", f"""
 dimensions [0 2 -2 0 0 0 0];
 internalField uniform 0;
@@ -406,11 +415,11 @@ def turb(name, val, wall):
 def flowbc(name, s, val):
     """k, omega and nut on a fan's faces: out of the domain, zero gradient;
     back in, a fan's jet -- 5 % turbulence on a 20 mm mixing length."""
-    if "flow" not in s:
+    if "flow" not in s and "suction_pa" not in s:
         return None
     if name == "nut":
         return "type calculated;"
-    if s["flow_dir"] == "out":
+    if s.get("flow_dir") == "out" or "suction_pa" in s:
         return "type zeroGradient;"
     if name == "k":
         return "type turbulentIntensityKineticEnergyInlet; intensity 0.05;"

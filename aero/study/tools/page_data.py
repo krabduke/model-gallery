@@ -53,12 +53,13 @@ vx1["intro"] = (
     "<p>The car as built, at 180 km/h over a moving road with its wheels turning: once with the "
     "fans stopped, once with them drawing 8 m³/s out of the sealed floor as the spec says they do. "
     "The first attempt at the second run found the fans could not breathe at all: their intakes "
-    "opened onto the track, two millimetres from it, and the road shut them. They were moved into "
-    "the tunnel roofs, the wings were retrimmed for balance, and the finished car was run again "
-    "at 180 and at 250 km/h.</p>")
-vx1["caption"] = ("The finished car, fans running. The deep blue under the floor is the plenum they "
-                  "hold under suction; the orange on the nose and the wings' leading edges is where "
-                  "the air stops against them.")
+    "opened onto the track, two millimetres from it, and the road shut them. Moved into the tunnel "
+    "roofs, they worked, and showed the open floor could not: above 195 km/h an F1 car gripped "
+    "harder. So the floor was sealed all round and held at a set suction, the wings retrimmed "
+    "to suit, and the finished car was run at 180, 250 and 340 km/h.</p>")
+vx1["caption"] = ("The finished car at 340 km/h, floor sealed. The deep blue under it is the plenum "
+                  "the fans hold at 7 kPa; the orange on the nose and the wings' leading edges is "
+                  "where the air stops against them.")
 if reg_off:
     w_off = -(reg_off["front wing"]["CL.A"] + reg_off["rear wing"]["CL.A"])
     f_off = -reg_off["floor and diffuser"]["CL.A"]
@@ -75,42 +76,77 @@ if reg_off:
          "An F1 car's downforce grows with the square of its speed and the VX-1's hardly does, so "
          "below 195 km/h the fan car grips harder and above it the F1 car does. Over a lap it is "
          "still quicker, by 1.5 s, not the 10.7 we had claimed."]]
-# the finished car: fans running at two speeds, and what they split into
+# the open floor as first finished: fans running at two speeds
 u50, u70 = load("vx1_bal2_forces.json"), load("vx1_bal2_u70_forces.json")
+qq = lambda u: 0.5 * RHO * u * u
 if u50 and u70:
-    qq = lambda u: 0.5 * RHO * u * u
-    D50, D70 = -u50["Cl"]["mean"] * qq(50), -u70["Cl"]["mean"] * qq(70)
-    a = (D70 - D50) / (qq(70) - qq(50))
-    X50, X70 = u50["Cd"]["mean"] * qq(50), u70["Cd"]["mean"] * qq(70)
-    cda0 = (X70 - X50) / (qq(70) - qq(50))
-    # the car's own lap simulation, on the spec that now carries these
+    vx1["open"] = {"kg50": round(-u50["Cl"]["mean"] * qq(50) / G),
+                   "kg70": round(-u70["Cl"]["mean"] * qq(70) / G), "crossover": 195}
+# the finished car: the floor sealed and held at 7 kPa, run at three speeds;
+# a least-squares line through downforce against q splits it into what the
+# plenum holds and what grows with speed
+runs = [(u, load(f"vx1_seal2_u{u}_forces.json")) for u in (50, 70, 95)]
+if all(d for _, d in runs):
+    xs = [qq(u) for u, _ in runs]
+    D = [-d["Cl"]["mean"] * qq(u) for u, d in runs]
+    X = [d["Cd"]["mean"] * qq(u) for u, d in runs]
+    n = len(xs); mx = sum(xs) / n
+    fit = lambda ys: (sum((x - mx) * (y - sum(ys) / n) for x, y in zip(xs, ys))
+                      / sum((x - mx) ** 2 for x in xs))
+    a = fit(D); c0 = sum(D) / n - a * mx
+    cda0 = fit(X)
     sys.path.insert(0, os.path.join(HERE, "..", "aero-hypercar", "aero"))
     import laptime
     ours, f1 = laptime.build_cars()
     segs = laptime.circuit(laptime.calibrate(f1))
     lap = [{"k": k, "ours": round(laptime.simulate(ours, segs, k)["time"], 2),
             "f1": round(laptime.simulate(f1, segs, k)["time"], 2)} for k in laptime.K_BAND]
+    x_over = next((v for v in range(40, 450)
+                   if ours.lat_capability(v / 3.6, 0.18) < f1.lat_capability(v / 3.6, 0.18)), None)
+    kerb = next((v for v in range(40, 450)
+                 if ours.lat_capability(v / 3.6, 0.18, 0.7) < f1.lat_capability(v / 3.6, 0.18)), None)
+    front = lambda d: round(100 * d["Cl(f)"]["mean"] / d["Cl"]["mean"], 1)
     vx1["final"] = {
-        "kg50": round(D50 / G), "kg70": round(D70 / G), "cla_v2": round(a, 3),
-        "fan_kg": round((D50 - a * qq(50)) / G), "cda": round(cda0, 3),
-        "jet_n": round((cda0 - u50["Cd"]["mean"]) * qq(50)),
-        "front50": round(100 * u50["Cl(f)"]["mean"] / u50["Cl"]["mean"], 1),
-        "front70": round(100 * u70["Cl(f)"]["mean"] / u70["Cl"]["mean"], 1),
-        "lap": lap,
+        "kg50": round(D[0] / G), "kg70": round(D[1] / G), "kg95": round(D[2] / G),
+        "cla_v2": round(a, 3), "fan_kg": round(c0 / G), "cda": round(cda0, 3), "jet_n": 0,
+        "front50": front(runs[0][1]), "front70": front(runs[1][1]), "front95": front(runs[2][1]),
+        "lap": lap, "crossover": x_over, "kerb_crossover": kerb, "suction_kpa": 7.0,
         # what the spec had claimed, before: passive 4.55 m2 plus 650 kg of fan
         "said50": round(4.55 * qq(50) / G + 650), "said70": round(4.55 * qq(70) / G + 650),
+        "said95": round(4.55 * qq(95) / G + 650),
         "said_lap": 10.7}
 # the retrim for balance, step by step, fans running
 steps = []
-for name, what in (("vx1_fans_forces.json", "Intakes fixed, wings as designed"),
+for name, what in (("vx1_fans_forces.json", "Open floor: intakes fixed, wings as designed"),
                    ("vx1_bal_forces.json", "Rear wing 17 to 4 degrees, front wing up 3 to 4"),
-                   ("vx1_bal2_forces.json", "Rear wing flat, front wing 8 % larger and up 2 more")):
+                   ("vx1_bal2_forces.json", "Rear wing flat, front wing 8 % larger and up 2 more"),
+                   ("vx1_seal_u50_forces.json", "Floor sealed at 5.5 kPa, rear wing back to 17"),
+                   ("vx1_seal2_u50_forces.json", "7 kPa, front wing 12 % larger and up 3 more")):
     d = load(name)
     if d:
         steps.append({"what": what, "front": round(100 * d["Cl(f)"]["mean"] / d["Cl"]["mean"], 1),
                       "cla": round(-d["Cl"]["mean"], 2), "cda": round(d["Cd"]["mean"], 2),
                       "kg": round(-d["Cl"]["mean"] * q / G, 0)})
 vx1["steps"] = steps
+F = vx1.get("final")
+if F:
+    vx1["notes"] = [
+        ["The open floor could not work",
+         "As first built the floor was open at the front: a venturi tunnel each side with a fan in "
+         "its roof. Stopped, the fans left it full of rammed air and it lifted. Running, the air the "
+         "car drove into the tunnels swamped them, and the 771 kg they appeared to hold came from "
+         "forcing 4 m³/s through an intake choked to −31 kPa: about 380 kW of fan work from fans "
+         "rated 38. Above 195 km/h an F1 car gripped harder."],
+        ["So it was sealed",
+         f"Skirts all round now, across the front and the back as well as down the sides, like the "
+         f"Chaparral 2J's and the Brabham BT46B's. The fans hold each side at {F['suction_kpa']:.0f} kPa "
+         f"and only have to move what leaks in under the skirts: 42 kW for the pair. Measured at "
+         f"three speeds it holds {F['fan_kg']} kg at any speed, and the wings add to it."],
+        ["Faster than F1 everywhere it goes",
+         f"It out-grips an F1 car up to {F['crossover']} km/h, past F1's top speed, and laps "
+         f"{lap[-1]['f1'] - lap[-1]['ours']:.1f} s quicker at the harsh end of the tyre model. The "
+         f"limits, stated: riding a kerb with 30 % of the suction lost it holds to {F['kerb_crossover']} "
+         f"km/h, and its top speed, 337 km/h, is level with F1's."]]
 json.dump(vx1, open(os.path.join(OUT, "vx1.json"), "w"), indent=1)
 
 # ------------------------------------------------------------------ Nyx

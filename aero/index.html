@@ -407,21 +407,28 @@ if (vx1 && vx1.results) {
     const lap2 = F.lap.find(l => l.k !== lap.k);
     const gain = lap.f1 - lap.ours;
     rows.push(
-      {what: 'What the fans hold down', src: 'the part that does not grow with speed, from the finished car at 180 and 250 km/h',
+      {what: 'What the fans hold down', src: `the part that does not grow with speed: the sealed floor held at ${fmt(F.suction_kpa, 0)} kPa, from the finished car at 180, 250 and 340 km/h`,
        said: said.fan_kg, got: F.fan_kg, saidText: `${fmt(said.fan_kg, 0)}<small>kg</small>`, gotText: `${fmt(F.fan_kg, 0)}<small>kg</small>`,
        verdict: verdict(said.fan_kg, F.fan_kg)},
       {what: 'All of it, 180 km/h', src: 'the finished car, fans running, against the spec\u2019s wings, floor and fans',
        said: F.said50, got: F.kg50, saidText: `${fmt(F.said50, 0)}<small>kg</small>`, gotText: `${fmt(F.kg50, 0)}<small>kg</small>`,
        sd: `± ${fmt(2 * vx1.fans.Cl.sd * q / 9.81, 0)} kg`, verdict: verdict(F.said50, F.kg50)},
-      {what: 'All of it, 250 km/h', src: 'the same car, faster: a fan car\u2019s downforce hardly grows',
+      {what: 'All of it, 250 km/h', src: 'the same car, faster: the plenum holds, the wings add',
        said: F.said70, got: F.kg70, saidText: `${fmt(F.said70, 0)}<small>kg</small>`, gotText: `${fmt(F.kg70, 0)}<small>kg</small>`,
        verdict: verdict(F.said70, F.kg70)},
+      {what: 'All of it, 340 km/h', src: 'where an F1 car makes the most it ever does',
+       said: F.said95, got: F.kg95, saidText: `${fmt(F.said95, 0)}<small>kg</small>`, gotText: `${fmt(F.kg95, 0)}<small>kg</small>`,
+       verdict: verdict(F.said95, F.kg95)},
+      {what: 'Grip against F1', src: 'the speed above which an F1 car corners harder', said: vx1.open ? vx1.open.crossover : 195, got: F.crossover,
+       saidText: `${fmt(vx1.open ? vx1.open.crossover : 195, 0)}<small>km/h, open floor</small>`, gotText: `${fmt(F.crossover, 0)}<small>km/h</small>`,
+       sd: `past F1\u2019s top speed; ${fmt(F.kerb_crossover, 0)} km/h riding a kerb`, bar: false,
+       verdict: ['hold', 'Sealed, it out-grips F1 everywhere F1 goes', `the open floor lost above ${vx1.open ? vx1.open.crossover : 195} km/h`]},
       {what: 'Drag', src: said.cda_src, said: said.cda, got: F.cda,
        saidText: `${fmt(said.cda)}<small>m² CD·A</small>`, gotText: `${fmt(F.cda)}<small>m²</small>`,
-       sd: `and the fans\u2019 jets push back ${fmt(F.jet_n, 0)} N`, verdict: verdict(said.cda, F.cda, {higherIs: 'worse'})},
+       sd: 'the rear wing is back at 17\u00b0, and the fans\u2019 jets, carrying only the skirt leak, push back nothing worth counting', verdict: verdict(said.cda, F.cda, {higherIs: 'worse'})},
       {what: 'Balance, 180 km/h', src: said.bal_src, said: said.balance, got: F.front50, bar: false,
        saidText: `${fmt(said.balance, 1)}<small>% front</small>`, gotText: `${fmt(F.front50, 1)}<small>% front</small>`,
-       verdict: F.front50 >= 40 && F.front50 <= 50 ? ['hold', 'Inside the 40 to 50 % band', `after two retrims; it drifts to ${fmt(F.front70, 0)} % by 250 km/h`] : verdict(said.balance, F.front50, {points: true})},
+       verdict: F.front50 >= 40 && F.front50 <= 50 ? ['hold', 'At the 40 % edge of the band', `${fmt(F.front95, 1)} % at 340 km/h with the rear flap full; the active flap trims it to 40`] : verdict(said.balance, F.front50, {points: true})},
       {what: 'A lap against F1', src: 'the car\u2019s own lap simulation, on the measured aerodynamics', said: F.said_lap, got: gain,
        saidText: `${fmt(F.said_lap, 1)}<small>s quicker</small>`, gotText: `${fmt(gain, 1)}<small>s quicker</small>`,
        sd: lap2 ? `${fmt(lap2.f1 - lap2.ours, 1)} s at the light end of the tyre model` : '', verdict: verdict(F.said_lap, gain)});
@@ -434,8 +441,8 @@ if (vx1 && vx1.results) {
     // the balance, retrimmed: each step's share of downforce on the front axle
     // on a 0-100 % track, the 40-50 % a car needs shaded
     const st = vx1.steps;
-    $('#vx1-retrim').innerHTML = `<h3>Retrimmed for balance</h3>
-      <p>With the fans breathing, only ${fmt(st[0].front, 1)} % of the downforce was on the front axle: the fans pull at the back of the floor. A car that rear-heavy in downforce pushes wide in fast corners. The wings were retrimmed and each step run through the solver again.</p>
+    $('#vx1-retrim').innerHTML = `<h3>Retrimmed, then sealed</h3>
+      <p>With the fans breathing, only ${fmt(st[0].front, 1)} % of the downforce was on the front axle: the fans pulled at the back of the open floor. A car that rear-heavy in downforce pushes wide in fast corners. Three steps retrimmed the open floor; sealing it spread the suction evenly over a plenum centred 40 % back from the front axle, the rear wing went back to 17 degrees, and the front wing grew to match. Each step was run through the solver again.</p>
       <ol>${st.map((x, i) => `<li><span class="w">${esc(x.what)}</span>
         <span class="track">${i === 0 ? '<em class="band">40 to 50 % front</em>' : ''}<i class="${x.front >= 40 ? 'in' : ''}" style="width:${x.front}%"></i><span style="left:${x.front}%">${fmt(x.front, 1)} %</span></span>
         <span class="f"><b>${fmt(x.kg, 0)} kg</b> down at 180 km/h, drag ${fmt(x.cda)} m²</span></li>`).join('')}</ol>`;
