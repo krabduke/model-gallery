@@ -431,7 +431,7 @@ if (vx1 && vx1.results) {
        verdict: F.front50 >= 40 && F.front50 <= 50 ? ['hold', 'At the 40 % edge of the band', `${fmt(F.front95, 1)} % at 340 km/h with the rear flap full; the active flap trims it to 40`] : verdict(said.balance, F.front50, {points: true})},
       {what: 'A lap against F1', src: 'the car\u2019s own lap simulation, on the measured aerodynamics', said: F.said_lap, got: gain,
        saidText: `${fmt(F.said_lap, 1)}<small>s quicker</small>`, gotText: `${fmt(gain, 1)}<small>s quicker</small>`,
-       sd: lap2 ? `${fmt(lap2.f1 - lap2.ours, 1)} s at the light end of the tyre model` : '', verdict: verdict(F.said_lap, gain)});
+       sd: (lap2 ? `${fmt(lap2.f1 - lap2.ours, 1)} s at the light end of the tyre model; ` : '') + '9.2 s with 30 % of the suction lost on every kerb', verdict: verdict(F.said_lap, gain)});
   }
   ledger($('#vx1-ledger'), rows);
   $('#vx1-intro').innerHTML = vx1.intro || '';
